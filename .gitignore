@@ -1,0 +1,6 @@
+.idea
+.env
+env/
+.vscode
+venv/
+node_modules/
