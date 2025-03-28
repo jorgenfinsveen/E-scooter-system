@@ -1,6 +1,7 @@
 import sys
 import os
 import paho.mqtt.client as mqtt
+import logging
 import stmpy
 from threading import Thread
 from threading import Event
@@ -18,8 +19,10 @@ class MqttClient:
         self._status = 'disconnected'
         self._response_event = Event()
         self._client = self._init_client(host, port, topics)
+        self.input_topic = topics["input"]
         self.output_topic = topics["output"]
         self._message = None
+        self._logger = logging.getLogger(__name__)
         with open(SCOOTER_STATUS_CODES_PATH, 'r') as f:
             self._status_codes = json.load(f)
 
@@ -33,17 +36,18 @@ class MqttClient:
             self._client.loop_start()
 
         except Exception as e:
-            print(f"Error: {e}")
+            self._logger.critical(f"Could not connect to host: {e}")
             sys.exit(1)
 
         return self._client
 
     def on_connect(self : object, client : mqtt.Client) -> None:
         self._status = 'connected'
+        self._logger.info(f"Connected to MQTT broker at {client._host}:{client._port}")
 
     def on_message(self : object, client : mqtt.Client, userdata : object, msg : dict) -> None:
         message = json.loads(msg.payload)
-        print(f"Message received: {message}")
+        self._logger.info(f"At {self.input_topic} - received message: {message}")
         self._message = message
 
         if message.get("command") == "unlock_ack":  
@@ -52,9 +56,11 @@ class MqttClient:
     def stop(self : object) -> None:
         self._client.loop_stop()
         self._client.disconnect()
+        self._logger.info("Disconnected from MQTT broker")
 
     def send_message(self : object, message : dict) -> None:
         self._client.publish(self.output_topic, json.dumps(message))
+        self._logger.info(f"At {self.output_topic} - published message: {message}")
 
     def location_is_valid(self : object, location : str) -> bool:
         return True

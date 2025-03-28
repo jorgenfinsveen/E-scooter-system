@@ -1,4 +1,5 @@
 import os
+import logging
 from app.logic import weather, transaction
 from fastapi import FastAPI, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,6 +8,8 @@ DEPLOYMENT_MODE = os.getenv('DEPLOYMENT_MODE', 'TEST')
 DISABLE_MQTT    = os.getenv("DISABLE_MQTT", "False").lower() == "true"
 
 TEST_COORDINATES = (63.41947, 10.40174)
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -26,8 +29,7 @@ def set_mqtt_client(mqtt_client : object) -> None:
 
 @app.get("/")
 async def root():
-    if DEPLOYMENT_MODE == 'TEST':
-        print(f"Incoming request: /")
+    logger.debug("Request: HTTP GET /")
     return {"message": "Hello from backend!"}
 
 
@@ -47,6 +49,7 @@ def robots_txt():
 
 @app.post("/scooter/{uuid}/single-unlock")
 async def scooter_unlock_single(uuid: str, request: Request):
+    logger.debug("Request: HTTP POST /scooter/{uuid}/single-unlock")
     if DEPLOYMENT_MODE == 'PROD':
         mqtt_client = request.app.state.mqtt_client
         resp = mqtt_client.e_scooter_connect_single(uuid)
@@ -60,12 +63,12 @@ async def scooter_unlock_single(uuid: str, request: Request):
             return {"message": msg}
     else:
         if DISABLE_MQTT:
-            print(f"Incoming request: /scooter/{uuid}/single-unlock")
             return {"message": f"TEST: scooter_unlock_single({uuid})"}
 
 
 @app.post("/scooter/{uuid}/single-lock")
 async def scooter_lock_single(uuid: str, request: Request):
+    logger.debug("Request: HTTP POST /scooter/{uuid}/single-lock")
     if DEPLOYMENT_MODE == 'PROD':
         mqtt_client = request.app.state.mqtt_client
         resp = mqtt_client.e_scooter_connect_single(uuid)
@@ -79,7 +82,6 @@ async def scooter_lock_single(uuid: str, request: Request):
             return {"message": msg}
     else:
         if DISABLE_MQTT:
-            print(f"Incoming request: /scooter/{uuid}/single-lock")
             return {"message": f"TEST: scooter_ulock_single({uuid})"}
 
 

@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 import requests
 from typing import Tuple
 
@@ -11,10 +12,11 @@ WEATHER_API_CONTACT_INFO      = os.getenv("WEATHER_API_CONTACT_INFO", "jorgen.fi
 WEATHER_TEMPERATURE_THRESHOLD = int(os.getenv("WEATHER_TEMPERATURE_THRESHOLD", 0))
 DISABLE_WEATHER = os.getenv("DISABLE_WEATHER", "False").lower() == "true"
 
+logger = logging.getLogger(__name__)
 
 def _get_weather(latitude: float, longtiude: float) -> dict:
     if WEATHER_API_URL is None:
-        print("Weather error: API_URL is not set.")
+        logger.error("API_URL is not set.")
         return None
     
     url = f"{WEATHER_API_URL}?lat={latitude}&lon={longtiude}"
@@ -26,12 +28,12 @@ def _get_weather(latitude: float, longtiude: float) -> dict:
     try: 
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
-            print(f"Weather error: {response.status_code}")
+            logger.error(f"Invalid response code: {response.status_code}")
             return None
         else:
             return response.json()
     except Exception as e:
-        print(f"Weather API response error: {e}")
+        logger.error(f"Error fetching weather data: {e}")
         return None
         
             
@@ -44,12 +46,6 @@ def is_weather_ok(latitude: float, longitude: float) -> Tuple[bool, str]:
 
     if weather is None:
         return False, "Error fetching weather data"
-    
-    """     
-    for key in weather["properties"]["timeseries"]:
-        print(key) 
-    return True, "Weather data fetched" 
-    """
 
     stats       = weather["properties"]["timeseries"][0]["data"]["instant"]["details"]
     temperature = float(stats["air_temperature"])
