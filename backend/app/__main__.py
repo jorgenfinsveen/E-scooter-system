@@ -7,7 +7,7 @@ from app.logic import *
 from threading import Thread
 
 DEPLOYMENT_MODE = os.getenv('DEPLOYMENT_MODE', 'TEST')
-DISABLE_MQTT    = bool(os.getenv('DISABLE_MQTT', True))
+DISABLE_MQTT    = os.getenv("DISABLE_MQTT", "False").lower() == "true"
 HTTP_HOST = None
 MQTT_HOST = None
 HTTP_PORT = None

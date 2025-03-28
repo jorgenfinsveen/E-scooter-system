@@ -1,9 +1,12 @@
 import os
+from app.logic import weather, transaction
 from fastapi import FastAPI, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 DEPLOYMENT_MODE = os.getenv('DEPLOYMENT_MODE', 'TEST')
-DISABLE_MQTT    = bool(os.getenv('DISABLE_MQTT', True))
+DISABLE_MQTT    = os.getenv("DISABLE_MQTT", "False").lower() == "true"
+
+TEST_COORDINATES = (63.41947, 10.40174)
 
 app = FastAPI()
 
@@ -34,7 +37,7 @@ def robots_txt():
         "User-agent: *",
     ]
     arr = ["/openapi.json", "/docs", "/redoc", "/docs/oauth2-redirect"]
-    
+
     for route in app.routes:
         if hasattr(route, "path") and not route.path.startswith("/robots.txt") and route.path not in arr:
             lines.append(f"Endpoint: {route.path}")
@@ -79,4 +82,8 @@ async def scooter_lock_single(uuid: str, request: Request):
             print(f"Incoming request: /scooter/{uuid}/single-lock")
             return {"message": f"TEST: scooter_ulock_single({uuid})"}
 
-    
+
+@app.get("/test-weather")
+async def test_weather():
+    resp = weather.is_weather_ok(TEST_COORDINATES[0], TEST_COORDINATES[1])
+    return {"message": resp[1]}

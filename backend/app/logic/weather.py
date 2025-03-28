@@ -1,14 +1,15 @@
 import os
+import json
 import requests
 from typing import Tuple
 
 APP_VERSION                   = os.getenv("APP_VERSION", "0.1-SNAPSHOT")
-WEATHER_API_URL               = os.getenv("API_URL", None)
-WEATHER_API_CONTENT_TYPE      = os.getenv("API_CONTENT_TYPE", "application/json")
+WEATHER_API_URL               = os.getenv("WEATHER_API_URL", None)
+WEATHER_API_CONTENT_TYPE      = os.getenv("WEATHER_API_CONTENT_TYPE", "application/json")
 WEATHER_API_USER_AGENT        = os.getenv("WEATHER_API_USER_AGENT", "application/json")
 WEATHER_API_CONTACT_INFO      = os.getenv("WEATHER_API_CONTACT_INFO", "jorgen.finsveen@ntnu.no")
 WEATHER_TEMPERATURE_THRESHOLD = int(os.getenv("WEATHER_TEMPERATURE_THRESHOLD", 0))
-DISABLE_WEATHER               = bool(os.getenv('DISABLE_WEATHER', True))
+DISABLE_WEATHER = os.getenv("DISABLE_WEATHER", "False").lower() == "true"
 
 
 def _get_weather(latitude: float, longtiude: float) -> dict:
@@ -40,15 +41,21 @@ def is_weather_ok(latitude: float, longitude: float) -> Tuple[bool, str]:
         return True, "Weather check disabled"
     
     weather = _get_weather(latitude, longitude)
-    
+
     if weather is None:
         return False, "Error fetching weather data"
     
-    stats       = weather["timeseries"]["data"]["instant"]["details"]
+    """     
+    for key in weather["properties"]["timeseries"]:
+        print(key) 
+    return True, "Weather data fetched" 
+    """
+
+    stats       = weather["properties"]["timeseries"][0]["data"]["instant"]["details"]
     temperature = float(stats["air_temperature"])
     humidity    = float(stats["relative_humidity"])
 
     if temperature >= WEATHER_TEMPERATURE_THRESHOLD:
-        return True, "Weather is good"
+        return True, f"Acceptable conditions - Temperature: {temperature}, Humidity: {humidity}"
     else:
         return False, f"Insufficient conditions - Temperature: {temperature}, Humidity: {humidity}"
