@@ -1,0 +1,13 @@
+{
+    "0": "ok",
+    "1": "battery low",
+    "2": "bad weather",
+    "3": "crash sensor error",
+    "4": "distress signaling unit error",
+    "5": "weather sensor error",
+    "6": "gps error",
+    "7": "operational error",
+    "8": "battery error",
+    "9": "invalid parking"
+  }
+  
