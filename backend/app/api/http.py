@@ -27,6 +27,9 @@ def get_app():
 def set_mqtt_client(mqtt_client : object) -> None:
     app.state.mqtt_client = mqtt_client
 
+def set_db_client(db_client : object) -> None:
+    app.state.db_client = db_client
+
 @app.get("/")
 async def root():
     logger.debug("Request: HTTP GET /")
@@ -52,7 +55,7 @@ async def scooter_unlock_single(uuid: str, request: Request):
     logger.debug("Request: HTTP POST /scooter/{uuid}/single-unlock")
     if DEPLOYMENT_MODE == 'PROD':
         mqtt_client = request.app.state.mqtt_client
-        resp = mqtt_client.e_scooter_connect_single(uuid)
+        resp = mqtt_client.scooter_unlock_single(uuid)
 
         status = resp[0]
         msg    = resp[1]
@@ -71,7 +74,7 @@ async def scooter_lock_single(uuid: str, request: Request):
     logger.debug("Request: HTTP POST /scooter/{uuid}/single-lock")
     if DEPLOYMENT_MODE == 'PROD':
         mqtt_client = request.app.state.mqtt_client
-        resp = mqtt_client.e_scooter_connect_single(uuid)
+        resp = mqtt_client.scooter_lock_single(uuid)
 
         status = resp[0]
         msg    = resp[1]
