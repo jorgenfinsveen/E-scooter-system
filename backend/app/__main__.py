@@ -8,6 +8,7 @@ from app.api.mqtt import *
 from threading import Thread
 from app.logic import database
 from dotenv import load_dotenv
+from colorlog import ColoredFormatter 
 
 DEPLOYMENT_MODE = os.getenv('DEPLOYMENT_MODE', 'TEST')
 ENV = ".env.prod" if DEPLOYMENT_MODE == 'PROD' else ".env.test"
@@ -15,6 +16,8 @@ ENV_PATH = Path(__file__).resolve().parent / ENV
 load_dotenv(ENV_PATH)
 
 APP_VERSION     = os.getenv("APP_VERSION", "0.1-SNAPSHOT")
+APP_NAME        = os.getenv("APP_NAME", "Scooter Backend")
+APP_AUTHORS     = os.getenv("APP_AUTHORS", "Backend for scooter rental system")
 DEPLOYMENT_MODE = os.getenv('DEPLOYMENT_MODE', 'TEST')
 DISABLE_MQTT    = os.getenv("DISABLE_MQTT", "False").lower() == "true"
 HTTP_HOST = None
@@ -47,10 +50,6 @@ if DEPLOYMENT_MODE == 'PROD':
     MQTT_TOPIC_INPUT  = os.getenv('MQTT_TOPIC_INPUT_PROD',  'ttm4115/team_16/request')
     MQTT_TOPIC_OUTPUT = os.getenv('MQTT_TOPIC_OUTPUT_PROD', 'ttm4115/team_16/response')
 
-    logging.basicConfig(
-        level=logging.INFO, 
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    )
 else:
     HTTP_HOST = os.getenv('HTTP_HOST_TEST', 'localhost')
     MQTT_HOST = os.getenv('MQTT_HOST_TEST', 'localhost')
@@ -61,10 +60,22 @@ else:
     MQTT_TOPIC_INPUT  = os.getenv('MQTT_TOPIC_INPUT_TEST',  'ttm4115/team_16/request')
     MQTT_TOPIC_OUTPUT = os.getenv('MQTT_TOPIC_OUTPUT_TEST', 'ttm4115/team_16/response')
 
-    logging.basicConfig(
-        level=logging.DEBUG, 
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    )
+
+
+
+
+formatter = ColoredFormatter(
+    "%(log_color)s%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%H:%M:%S",
+    log_colors={
+        'DEBUG':    'green',
+        'INFO':     'cyan',
+        'WARNING':  'yellow',
+        'ERROR':    'red',
+        'CRITICAL': 'bold_red',
+    }
+)
+
 
 
 
@@ -120,19 +131,35 @@ def start_db_client():
         db.close()
 
 
+def setup_logging():
+    logger = logging.getLogger(__name__)
+
+    if DEPLOYMENT_MODE == 'PROD':
+        logger.setLevel(logging.INFO)
+    else:
+        logger.setLevel(logging.DEBUG)
+
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    
+    return logger
+
 
 if __name__ == "__main__":
     global mqtt_thread
     global http_thread
     global db_thread
+    logger = setup_logging()
 
-    logger = logging.getLogger(__name__)
-    logger.info("Starting application...")
-    logger.info(f"App version: {APP_VERSION}")
-    logger.info(f"Deployment mode: {DEPLOYMENT_MODE}")
-    logger.info(f"Launching HTTP Server: {HTTP_HOST}:{HTTP_PORT}")
-    logger.info(f"Launching MQTT Server: {MQTT_HOST}:{MQTT_PORT}")
-    logger.info(f"Connecting to DB: {DB_CONFIG['host']}:{DB_CONFIG['port']}")
+    logger.info(f"Starting {APP_NAME}")
+    logger.info(55*"-")
+    logger.info(f"{APP_AUTHORS}\n")
+    logger.warning(f"App version: \t{APP_VERSION}")
+    logger.warning(f"Deployment mode: \t{DEPLOYMENT_MODE}\n")
+    logger.info(f"Launching HTTP Server: \t{HTTP_HOST}:{HTTP_PORT}")
+    logger.info(f"Launching MQTT Server: \t{MQTT_HOST}:{MQTT_PORT}")
+    logger.info(f"Connecting to DB: \t\t{DB_CONFIG['host']}:{DB_CONFIG['port']}\n")
 
     mqtt_thread = Thread(target=start_mqtt_client)
     http_thread = Thread(target=start_http_server)

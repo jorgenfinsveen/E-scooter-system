@@ -10,7 +10,9 @@ RUN pip install --no-cache-dir -r /requirements.txt
 
 COPY app/ app/
 
+ENV APP_NAME="E-scooter-backend"
 ENV APP_VERSION="0.1-SNAPSHOT"
+ENV APP_AUTHORS="By students at NTNU, Trondheim, Norway, 2025"
 
 # Alternatives: "PROD", "TEST"
 ENV DEPLOYMENT_MODE="DEBUG"  
@@ -19,13 +21,13 @@ ENV DISABLE_WEATHER="False"
 ENV DISABLE_TRANSACTIONS="False"
 
 # MQTT CONFIG - PROD
-ENV MQTT_HOST_PROD="localhost"
+ENV MQTT_HOST_PROD="127.0.0.1"
 ENV MQTT_PORT_PROD="1885"
 ENV MQTT_TOPIC_INPUT_PROD="ttm4115/team_16/prod/request"
 ENV MQTT_TOPIC_OUTPUT_PROD="ttm4115/team_16/prod/response"
 
 # MQTT CONFIG - TEST
-ENV MQTT_HOST_TEST="localhost"
+ENV MQTT_HOST_TEST="127.0.0.1"
 ENV MQTT_PORT_TEST="1883"
 ENV MQTT_TOPIC_INPUT_TEST="ttm4115/team_16/test/request"
 ENV MQTT_TOPIC_OUTPUT_TEST="ttm4115/team_16/test/response"
