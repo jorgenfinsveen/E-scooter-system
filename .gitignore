@@ -4,3 +4,4 @@ env/
 .vscode
 venv/
 node_modules/
+.VSCodeCounter
