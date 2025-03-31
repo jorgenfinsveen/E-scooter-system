@@ -64,7 +64,6 @@ app.mount("/static", StaticFiles(directory=frontend_path), name="static")
 # 2. Serve assets fra /assets
 app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")
 
-app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 
 
 
@@ -304,10 +303,9 @@ async def get_rental_info(
     return {"message": resp}
 
 
-"""
+
 @app.get("/{full_path:path}")
 async def serve_react_app(full_path: str):
     if os.path.exists(index_file):
         return FileResponse(index_file)
-    return {"error": "Frontend not built"}"
-"""
+    return {"error": "Frontend not built"}

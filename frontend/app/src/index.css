@@ -1,0 +1,113 @@
+:root {
+  margin: 0;
+  padding: 1rem;
+  min-height: 90vh;
+  font-size: 1rem;
+  background-color: #2d2929;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: rgba(255, 255, 255, 0.87);;
+    background-color: #2d2929;
+  }
+  .location-map {
+    filter: invert(90%);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  .location-map {
+    filter: invert(0%);
+  }
+}
+
+.image {
+  width: 90vw;
+  height: auto;
+}
+
+.page-title {
+  font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-size: 3.2em;
+  line-height: 1.1;
+  padding-top: 2rem;
+}
+
+.primary-paragraph {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 1.5em;
+  line-height: 1.2;
+  padding-top: 2rem;
+}
+
+.summary-header {
+  font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-size: 2.5em;
+  line-height: 1.1;
+}
+
+.summary-paragraph {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 1.2em;
+  line-height: 0.7;
+}
+
+.user-id-input-container {
+  padding-top: 2vh;
+  padding-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+
+.button-container {
+  font-size: 1.5rem;
+  width: 90vw;
+  height: 7vh;
+  display: flex;
+  justify-content: center; /* vannrett sentrering */
+  align-items: center;     /* loddrett sentrering hvis ønskelig */
+  width: 100%;
+  margin-top: 2rem;
+}
+
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  body {
+    padding: 2rem 4rem;
+  }
+
+  .button-t {
+    font-size: 1.5rem;
+    padding: 0.8em 1.6em;
+    width: 90vw;
+    height: 7vh;
+    background-color: #1a1a1a;
+  }
+
+  .location-map {
+    width: 370vw;
+    height: 300vh;
+    border: 0;
+    border-radius: 0.5rem;
+  }
+}
+
+
+
+

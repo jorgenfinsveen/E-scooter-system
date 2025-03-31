@@ -1,0 +1,31 @@
+version: '3.9'
+
+""
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: e-scooter-frontend
+    container_name: scooter-frontend
+    working_dir: /app
+    command: ["echo", "frontend built"]
+    
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: backend
+    image: e-scooter-backend
+    container_name: scooter-backend
+    ports:
+      - "8080:8080"
+      - "1883:1883"
+    environment:
+      - DEPLOYMENT_MODE=PROD
+      - DISABLE_MQTT=True
+      - DISABLE_WEATHER=False
+      - DISABLE_TRANSACTIONS=False
+    depends_on:
+      - frontend
