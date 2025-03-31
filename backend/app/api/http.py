@@ -1,8 +1,10 @@
 import os
 import logging
+from app.logic import weather
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, Response, Request, Query
 from app.service import single_ride_service, multi_ride_service
+from fastapi import FastAPI, Response, Request, Query, APIRouter
 
 DEPLOYMENT_MODE = os.getenv('DEPLOYMENT_MODE', 'TEST')
 DISABLE_MQTT    = os.getenv("DISABLE_MQTT", "False").lower() == "true"
@@ -11,7 +13,28 @@ TEST_COORDINATES = (63.41947, 10.40174)
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    set_single_ride_service()
+    set_multi_ride_service()
+
+    logger.info("Initializing single ride service")
+    logger.info("Initializing multi ride service")
+    
+    yield
+
+    app.state.db_client.delete_inactive_rentals()
+    app.state.db_client.close()
+    app.state.mqtt_client.stop()
+
+    logger.error("Stopping DB client")
+    logger.error("Stopping MQTT client")
+    logger.error("Stopping FastAPI app")
+
+
+
+app = FastAPI(lifespan=lifespan)
+api_router = APIRouter()
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,6 +43,7 @@ app.add_middleware(
     allow_headers=["*"],
     allow_credentials=True,
 )
+
 
 
 def get_app():
@@ -67,13 +91,8 @@ def set_multi_ride_service() -> None:
 
 
 
-@app.on_event("startup")
-def startup_event():
-    set_single_ride_service()
-    set_multi_ride_service()
 
-
-@app.get("/")
+@api_router.get("/")
 async def root():
     """
     Root endpoint for the API.
@@ -84,42 +103,42 @@ async def root():
     return {"message": "Hello from backend!"}
 
 
+if DEPLOYMENT_MODE == "TEST":
+    @app.get("/robots.txt", include_in_schema=False)
+    def robots_txt():
+        """
+        Robots.txt endpoint for the API.
+        Creates a robots.txt file for the API, making it easier to see what endpoints are available.
+        This is useful for debugging and development purposes.
+        The robots.txt file is not intended for production use. Will return HTTP 401 Forbidden 
+        if app is deployed in prod.
 
-@app.get("/robots.txt", include_in_schema=False)
-def robots_txt():
-    """
-    Robots.txt endpoint for the API.
-    Creates a robots.txt file for the API, making it easier to see what endpoints are available.
-    This is useful for debugging and development purposes.
-    The robots.txt file is not intended for production use. Will return HTTP 401 Forbidden 
-    if app is deployed in prod.
+        Returns:
+            Response:
+            ``` 
+            DEVELOPMENT_MODE == 'TEST' 
+            curl -X GET http://localhost:8000/robots.txt -> 200 # OK: Returns robots.txt content.
+            
+            DEVELOPMENT_MODE == 'PROD'
+            curl -X GET http://localhost:8000/robots.txt -> 401 # Forbidden: Returns nothing.
+            ```
+        """
+        if DEPLOYMENT_MODE == 'PROD':
+            return Response(status_code=401)
+        lines = [
+            "User-agent: *",
+        ]
+        arr = ["/openapi.json", "/docs", "/redoc", "/docs/oauth2-redirect"]
 
-    Returns:
-        Response:
-        ``` 
-        DEVELOPMENT_MODE == 'TEST' 
-        curl -X GET http://localhost:8000/robots.txt -> 200 # OK: Returns robots.txt content.
-        
-        DEVELOPMENT_MODE == 'PROD'
-        curl -X GET http://localhost:8000/robots.txt -> 401 # Forbidden: Returns nothing.
-        ```
-    """
-    if DEPLOYMENT_MODE == 'PROD':
-        return Response(status_code=401)
-    lines = [
-        "User-agent: *",
-    ]
-    arr = ["/openapi.json", "/docs", "/redoc", "/docs/oauth2-redirect"]
+        for route in app.routes:
+            if hasattr(route, "path") and not route.path.startswith("/robots.txt") and route.path not in arr:
+                lines.append(f"Endpoint: {route.path}")
 
-    for route in app.routes:
-        if hasattr(route, "path") and not route.path.startswith("/robots.txt") and route.path not in arr:
-            lines.append(f"Endpoint: {route.path}")
-
-    return Response("\n".join(lines), media_type="text/plain")
+        return Response("\n".join(lines), media_type="text/plain")
 
 
 
-@app.post("/scooter/{uuid}/single-unlock")
+@api_router.post("/scooter/{uuid}/single-unlock")
 async def scooter_unlock_single(
     uuid: str, 
     request: Request,
@@ -142,21 +161,12 @@ async def scooter_unlock_single(
         ```
     """
     logger.debug("Request: HTTP POST /scooter/{uuid}/single-unlock?user_id={user_id}")
-    if True:
-        resp = request.app.state.single_ride_service.unlock_scooter(uuid, user_id)
-
-        if not resp[0]:
-            logger.warning(f"Single scooter unlock failed:")
-            logger.warning(f"\tscooter-id: \t{uuid}")
-            logger.warning(f"\tresponse: \t{resp[1]}")
-        return {"message": resp[1]}
-    else:
-        if DISABLE_MQTT:
-            return {"message": f"TEST: scooter_unlock_single({uuid})"}
+    resp = request.app.state.single_ride_service.unlock_scooter(uuid, user_id)
+    return {"message": resp[1]}
 
 
 
-@app.post("/scooter/{uuid}/single-lock")
+@api_router.post("/scooter/{uuid}/single-lock")
 async def scooter_lock_single(
     uuid: str, 
     request: Request,
@@ -178,21 +188,13 @@ async def scooter_lock_single(
         ```
     """
     logger.debug("Request: HTTP POST /scooter/{uuid}/single-lock?user_id={user_id}")
-    if True:
-        resp = request.app.state.single_ride_service.lock_scooter(uuid, user_id)
 
-        if not resp[0]:
-            logger.warning(f"Single scooter lock failed:")
-            logger.warning(f"\tscooter-id: \t{uuid}")
-            logger.warning(f"\tresponse: \t{resp[1]}")
-        return {"message": resp[1]}
-    else:
-        if DISABLE_MQTT:
-            return {"message": f"TEST: scooter_ulock_single({uuid})"}
+    resp = request.app.state.single_ride_service.lock_scooter(uuid, user_id)
+    return {"message": resp[1]}
 
 
 
-@app.get("/test-weather")
+@api_router.get("/test-weather")
 async def test_weather():
     """
     This endpoint is used to test the weather API.
@@ -209,3 +211,7 @@ async def test_weather():
     """
     resp = weather.is_weather_ok(TEST_COORDINATES[0], TEST_COORDINATES[1])
     return {"message": resp[1]}
+
+
+
+app.include_router(api_router, prefix="/api/v1")

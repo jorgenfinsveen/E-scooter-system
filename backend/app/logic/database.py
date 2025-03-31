@@ -74,6 +74,8 @@ class db:
             self._connect(credentials)
         else:
             self._connect(db.credentials)
+            
+        self.delete_inactive_rentals()
 
 
 
