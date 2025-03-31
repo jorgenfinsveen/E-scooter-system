@@ -9,6 +9,8 @@ from threading import Thread
 from app.logic import database
 from dotenv import load_dotenv
 from colorlog import ColoredFormatter 
+from app.service import single_ride_service, multi_ride_service
+
 
 DEPLOYMENT_MODE = os.getenv('DEPLOYMENT_MODE', 'TEST')
 ENV = ".env.prod" if DEPLOYMENT_MODE == 'PROD' else ".env.test"
@@ -29,7 +31,8 @@ MQTT_TOPIC_OUTPUT = None
 
 
 
-
+# Database configuration
+# The configuration is set in the environment variables.
 DB_CONFIG = {
     'host':     os.getenv('DB_HOST', 'localhost'),
     'user':     os.getenv('DB_USER', 'user'),
@@ -39,7 +42,9 @@ DB_CONFIG = {
 }
 
 
-
+# Checks wether to use the production or test environment
+# and sets the environment variables accordingly.
+# The environment variables are set in the .env file.
 if DEPLOYMENT_MODE == 'PROD':
     HTTP_HOST = os.getenv('HTTP_HOST_PROD', 'localhost')
     MQTT_HOST = os.getenv('MQTT_HOST_PROD', 'localhost')
@@ -63,9 +68,9 @@ else:
 
 
 
-
+# Sets the logging format and colors
 formatter = ColoredFormatter(
-    "%(log_color)s%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    "%(log_color)s[%(asctime)s] [%(levelname)s] [%(filename)s:%(lineno)d in %(funcName)s()] %(message)s",
     datefmt="%H:%M:%S",
     log_colors={
         'DEBUG':    'green',
@@ -78,20 +83,28 @@ formatter = ColoredFormatter(
 
 
 
-
 def start_http_server():
+    """
+    Starts the HTTP server using uvicorn.
+    The server is started in a separate thread.
+    """
     asyncio.set_event_loop(asyncio.new_event_loop()) 
     uvicorn.run("app.api.http:app", host='0.0.0.0', port=HTTP_PORT, reload=False, loop="asyncio")
 
 
 
 def start_mqtt_client():
+    """
+    Starts the MQTT client.
+    The client is started in a separate thread.
+    Will not do anything if DISABLE_MQTT is set to True.
+    """
     if not DISABLE_MQTT:
         topics = {
             "input":  MQTT_TOPIC_INPUT,
             "output": MQTT_TOPIC_OUTPUT
         }
-        mqtt_client = MqttClient(id=1000, host=MQTT_HOST, port=MQTT_PORT, topics=topics)
+        mqtt_client = app.api.mqtt_client(id=1000, host=MQTT_HOST, port=MQTT_PORT, topics=topics)
         set_mqtt_client(mqtt_client)
 
     try:
@@ -103,6 +116,9 @@ def start_mqtt_client():
 
 
 def test_db(db):
+    """
+    Test the database connection and functionality.
+    """
     db.add_user("John Doe", 350.0)
     db.add_scooter(65.41947, 12.40174, 0)
     users = db.get_all_users()
@@ -121,6 +137,10 @@ def test_db(db):
 
 
 def start_db_client():
+    """
+    Starts the database client.
+    The client is started in a separate thread.
+    """
     db = database.db(DB_CONFIG)
     set_db_client(db)
 
@@ -132,21 +152,31 @@ def start_db_client():
 
 
 def setup_logging():
-    logger = logging.getLogger(__name__)
+    """
+    Sets up the logging configuration.
+    The logging configuration is set to use the ColoredFormatter
+    and the logging level is set to DEBUG for development mode
+    and INFO for production mode.
+    """
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    logger = logging.getLogger()
 
     if DEPLOYMENT_MODE == 'PROD':
         logger.setLevel(logging.INFO)
     else:
         logger.setLevel(logging.DEBUG)
-
-    handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
     logger.addHandler(handler)
     
     return logger
 
 
 if __name__ == "__main__":
+    """
+    Main function and entry point to start the application.
+    It starts the HTTP server, MQTT client and database client
+    in separate threads.
+    """
     global mqtt_thread
     global http_thread
     global db_thread
@@ -157,14 +187,17 @@ if __name__ == "__main__":
     logger.info(f"{APP_AUTHORS}\n")
     logger.warning(f"App version: \t{APP_VERSION}")
     logger.warning(f"Deployment mode: \t{DEPLOYMENT_MODE}\n")
+
     logger.info(f"Launching HTTP Server: \t{HTTP_HOST}:{HTTP_PORT}")
-    logger.info(f"Launching MQTT Server: \t{MQTT_HOST}:{MQTT_PORT}")
-    logger.info(f"Connecting to DB: \t\t{DB_CONFIG['host']}:{DB_CONFIG['port']}\n")
-
-    mqtt_thread = Thread(target=start_mqtt_client)
     http_thread = Thread(target=start_http_server)
-    db_thread = Thread(target=start_db_client)
-
-    mqtt_thread.start()
     http_thread.start()
+
+    
+    logger.info(f"Launching MQTT Server: \t{MQTT_HOST}:{MQTT_PORT}")
+    mqtt_thread = Thread(target=start_mqtt_client)
+    mqtt_thread.start()
+
+    logger.info(f"Connecting to DB: \t\t{DB_CONFIG['host']}:{DB_CONFIG['port']}\n")
+    db_thread = Thread(target=start_db_client)
     db_thread.start()
+    
