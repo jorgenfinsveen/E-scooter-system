@@ -40,7 +40,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 api_router = APIRouter()
 
-app.include_router(api_router, prefix="/api/v1")
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -152,14 +152,24 @@ if DEPLOYMENT_MODE == "TEST":
         """
         if DEPLOYMENT_MODE == 'PROD':
             return Response(status_code=401)
+
         lines = [
             "User-agent: *",
         ]
-        arr = ["/openapi.json", "/docs", "/redoc", "/docs/oauth2-redirect"]
 
+        exclude_paths = ["/robots.txt", "/openapi.json", "/docs", "/redoc", "/docs/oauth2-redirect"]
+
+        # 🚀 Legg til app-routes
         for route in app.routes:
-            if hasattr(route, "path") and not route.path.startswith("/robots.txt") and route.path not in arr:
+            if hasattr(route, "path") and route.path not in exclude_paths:
                 lines.append(f"Endpoint: {route.path}")
+
+        # 🚀 Legg til router-routes med prefiks
+        for route in api_router.routes:
+            if hasattr(route, "path"):
+                full_path = f"/api/v1{route.path}"
+                if full_path not in exclude_paths:
+                    lines.append(f"Endpoint: {full_path}")
 
         return Response("\n".join(lines), media_type="text/plain")
 
@@ -278,7 +288,7 @@ async def get_scooter_info(
     request: Request,
 ):
     logger.debug("Request: HTTP GET /scooter/{uuid}")
-
+    logger.debug(f"single_ride_service: {hasattr(request.app.state, 'single_ride_service')}")
     resp = request.app.state.single_ride_service.get_scooter_info(uuid)
     return {"message": resp}
 
@@ -303,9 +313,16 @@ async def get_rental_info(
     return {"message": resp}
 
 
+app.include_router(api_router, prefix="/api/v1")
 
 @app.get("/{full_path:path}")
-async def serve_react_app(full_path: str):
+async def serve_react_app(full_path: str, request: Request):
+    # Ikke håndter API-ruter
+    if full_path.startswith("api/"):
+        return Response(status_code=404)
+
     if os.path.exists(index_file):
         return FileResponse(index_file)
     return {"error": "Frontend not built"}
+
+
