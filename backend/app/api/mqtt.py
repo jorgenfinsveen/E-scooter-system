@@ -5,7 +5,7 @@ import time
 import logging
 from threading import Event
 import paho.mqtt.client as mqtt
-from app.tools.singleton import singleton
+from tools.singleton import singleton
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCOOTER_STATUS_CODES_PATH = os.path.join(BASE_DIR, "resources/scooter-status-codes.json")

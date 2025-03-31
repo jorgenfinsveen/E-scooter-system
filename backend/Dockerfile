@@ -1,14 +1,27 @@
-FROM python:3.11-slim
+FROM node:20 AS frontend-builder
+
+WORKDIR /app
+COPY frontend/app/ ./
+
+RUN npm install
+RUN npm run build
+
+
+
+
+
+FROM python:3.11-slim AS backend
 
 RUN apt-get update && apt-get install -y build-essential && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY /requirements.txt /requirements.txt
+COPY backend/requirements.txt /requirements.txt
 
 RUN pip install --no-cache-dir -r /requirements.txt
 
-COPY app/ app/
+COPY backend/app/ /app/app
+COPY --from=frontend-builder /app/dist /frontend/app/dist
 
 ENV APP_NAME="E-scooter-backend"
 ENV APP_VERSION="0.1-SNAPSHOT"
@@ -16,7 +29,7 @@ ENV APP_AUTHORS="By students at NTNU, Trondheim, Norway, 2025"
 
 # Alternatives: "PROD", "TEST"
 ENV DEPLOYMENT_MODE="TEST"  
-ENV DISABLE_MQTT="False"
+ENV DISABLE_MQTT="True"
 ENV DISABLE_WEATHER="False"
 ENV DISABLE_TRANSACTIONS="False"
 
@@ -57,5 +70,7 @@ ENV TRANSACTION_CORIDE_DISCOUNT_PER_EXTRA_PERSON="5"
 EXPOSE 1883
 EXPOSE 8080
 
-CMD ["python", "-m", "app"]
+
+CMD ["python", "/app/app/__main__.py"]
+
 

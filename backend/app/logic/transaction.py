@@ -1,5 +1,5 @@
 import os
-from app.logic import database
+from logic import database
 
 DISABLE_TRANSACTIONS = os.getenv("DISABLE_TRANSACTIONS", "False").lower() == "true"
 TRANSACTION_COST_UNLOCK = int(os.getenv('TRANSACTION_COST_UNLOCK', '10'))

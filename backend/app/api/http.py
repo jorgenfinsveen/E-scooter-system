@@ -1,9 +1,13 @@
 import os
 import logging
-from app.logic import weather
+
+from fastapi.encoders import jsonable_encoder
+from fastapi.staticfiles import StaticFiles
+from logic import weather
+from fastapi.responses import FileResponse, JSONResponse
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
-from app.service import single_ride_service, multi_ride_service
+from service import single_ride_service, multi_ride_service
 from fastapi import FastAPI, Response, Request, Query, APIRouter
 
 DEPLOYMENT_MODE = os.getenv('DEPLOYMENT_MODE', 'TEST')
@@ -24,7 +28,7 @@ async def lifespan(app: FastAPI):
     yield
 
     app.state.db_client.delete_inactive_rentals()
-    app.state.db_client.close()
+    # app.state.db_client.close()
     app.state.mqtt_client.stop()
 
     logger.error("Stopping DB client")
@@ -36,6 +40,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 api_router = APIRouter()
 
+app.include_router(api_router, prefix="/api/v1")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -43,6 +49,25 @@ app.add_middleware(
     allow_headers=["*"],
     allow_credentials=True,
 )
+
+
+#frontend_path = os.path.join(os.path.dirname(__file__), "../frontend/app", "dist")
+#frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../frontend/app/dist"))
+#app.mount("/static", StaticFiles(directory=frontend_path), name="static")
+
+frontend_path = "/frontend/app/dist"
+index_file = os.path.join(frontend_path, "index.html")
+
+# 1. Serve alle filer i dist (inkl. scooter.gif, favicon, etc.)
+app.mount("/static", StaticFiles(directory=frontend_path), name="static")
+
+# 2. Serve assets fra /assets
+app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")
+
+app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+
+
+
 
 
 
@@ -89,6 +114,9 @@ def set_multi_ride_service() -> None:
     """
     app.state.multi_ride_service = multi_ride_service.multi_ride_service()
 
+
+frontend_path = "/frontend/app/dist"
+index_file = os.path.join(frontend_path, "index.html")
 
 
 
@@ -162,7 +190,12 @@ async def scooter_unlock_single(
     """
     logger.debug("Request: HTTP POST /scooter/{uuid}/single-unlock?user_id={user_id}")
     resp = request.app.state.single_ride_service.unlock_scooter(uuid, user_id)
-    return {"message": resp[1]}
+    status_code = 200 if resp[0] else 400
+
+    return JSONResponse(
+        content={"message": resp[1]},
+        status_code=status_code
+    )
 
 
 
@@ -188,9 +221,35 @@ async def scooter_lock_single(
         ```
     """
     logger.debug("Request: HTTP POST /scooter/{uuid}/single-lock?user_id={user_id}")
-
     resp = request.app.state.single_ride_service.lock_scooter(uuid, user_id)
-    return {"message": resp[1]}
+    status_code = 200 if resp[0] else 400
+
+    rental = resp[2]
+
+    logger.debug(f"Start_time: {rental['start_time']}")
+
+    start_time = rental["start_time"].strftime("%H:%M:%S")
+    logger.debug(f"Start_time: {rental['start_time']}")
+
+    #rental["start_time"] = rental["start_time"].strftime("%H:%M:%S")
+    #rental["end_time"] = rental["end_time"].strftime("%H:%M:%S")
+
+    """
+    send_rental = {
+        "rental_id": rental["rental_id"],
+        "start_time": datetime.fromtimestamp(rental["start_time"]),
+        "end_time": datetime.fromtimestamp(rental["end_time"]),
+        "price": rental["price"],
+        "user_id": rental["user_id"],
+        "scooter_id": rental["scooter_id"],
+        "active": rental["active"],
+    }
+    """
+
+    return JSONResponse(
+        content=jsonable_encoder({"message": rental}),
+        status_code=status_code
+    )
 
 
 
@@ -214,4 +273,41 @@ async def test_weather():
 
 
 
-app.include_router(api_router, prefix="/api/v1")
+@api_router.get("/scooter/{uuid}")
+async def get_scooter_info(
+    uuid: str, 
+    request: Request,
+):
+    logger.debug("Request: HTTP GET /scooter/{uuid}")
+
+    resp = request.app.state.single_ride_service.get_scooter_info(uuid)
+    return {"message": resp}
+
+
+@api_router.get("/user/{id}")
+async def get_user_info(
+    id: str, 
+    request: Request,
+):
+    logger.debug("Request: HTTP GET /user/{id}")
+    resp = request.app.state.single_ride_service.get_user_info(id)
+    return {"message": resp}
+
+
+@api_router.get("/rental/{rental_id}")
+async def get_rental_info(
+    rental_id: str, 
+    request: Request,
+):
+    logger.debug("Request: HTTP GET /rental/{rental_id}")
+    resp = request.app.state.single_ride_service.get_rental_info(rental_id)
+    return {"message": resp}
+
+
+"""
+@app.get("/{full_path:path}")
+async def serve_react_app(full_path: str):
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    return {"error": "Frontend not built"}"
+"""

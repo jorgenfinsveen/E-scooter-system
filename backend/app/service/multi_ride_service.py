@@ -1,9 +1,9 @@
 import logging
-from app.api import mqtt
-from app.logic import weather
-from app.logic import database
-from app.logic import transaction
-from app.tools.singleton import singleton
+from api import mqtt
+from logic import weather
+from logic import database
+from logic import transaction
+from tools.singleton import singleton
 
 
 

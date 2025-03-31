@@ -1,15 +1,15 @@
 import os
 import logging
 import asyncio
+import time
 import uvicorn
 from pathlib import Path
-from app.api.http import *
-from app.api.mqtt import *
+from api.http import *
+from api.mqtt import *
 from threading import Thread
-from app.logic import database
+from logic import database
 from dotenv import load_dotenv
 from colorlog import ColoredFormatter 
-from app.service import single_ride_service, multi_ride_service
 
 
 DEPLOYMENT_MODE = os.getenv('DEPLOYMENT_MODE', 'TEST')
@@ -89,7 +89,7 @@ def start_http_server():
     The server is started in a separate thread.
     """
     asyncio.set_event_loop(asyncio.new_event_loop()) 
-    uvicorn.run("app.api.http:app", host='0.0.0.0', port=HTTP_PORT, reload=False, loop="asyncio")
+    uvicorn.run("api.http:app", host='0.0.0.0', port=HTTP_PORT, reload=False, loop="asyncio")
 
 
 
@@ -104,8 +104,9 @@ def start_mqtt_client():
             "input":  MQTT_TOPIC_INPUT,
             "output": MQTT_TOPIC_OUTPUT
         }
-        mqtt_client = app.api.mqtt_client(id=1000, host=MQTT_HOST, port=MQTT_PORT, topics=topics)
-        set_mqtt_client(mqtt_client)
+        client = mqtt_client(id=1000, host=MQTT_HOST, port=MQTT_PORT, topics=topics)
+        set_mqtt_client(client)
+
 
     try:
         while True:

@@ -1,6 +1,6 @@
 import logging
 import mysql.connector
-from app.tools.singleton import singleton
+from tools.singleton import singleton
 
 
 
@@ -74,7 +74,7 @@ class db:
             self._connect(credentials)
         else:
             self._connect(db.credentials)
-            
+
         self.delete_inactive_rentals()
 
 
@@ -114,6 +114,19 @@ class db:
             self._cursor.close()
         if self._conn:
             self._conn.close()
+
+
+    def is_connection_alive(self):
+        try:
+            self._conn.ping(reconnect=True)
+            return True
+        except mysql.connector.Error as e:
+            return False
+
+
+    def ensure_connection(self):
+        if self._conn is None or self._cursor is None or not self.is_connection_alive():
+            self._connect(self.credentials)
 
 
 
