@@ -189,7 +189,7 @@ if __name__ == "__main__":
     logger.warning(f"App version: \t{APP_VERSION}")
     logger.warning(f"Deployment mode: \t{DEPLOYMENT_MODE}\n")
 
-    logger.info(f"Launching HTTP Server: \t{HTTP_HOST}:{HTTP_PORT}")
+    logger.info(f"Launching HTTP Server: \t0.0.0.0:{HTTP_PORT}")
     http_thread = Thread(target=start_http_server)
     http_thread.start()
 

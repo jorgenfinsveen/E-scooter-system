@@ -9,7 +9,6 @@ RUN npm run build
 
 
 
-
 FROM python:3.11-slim AS backend
 
 RUN apt-get update && apt-get install -y build-essential && rm -rf /var/lib/apt/lists/*
@@ -74,3 +73,10 @@ EXPOSE 8080
 CMD ["python", "/app/app/__main__.py"]
 
 
+
+
+
+FROM nginx:stable AS nginx
+
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=frontend-builder /app/dist /usr/share/nginx/html
