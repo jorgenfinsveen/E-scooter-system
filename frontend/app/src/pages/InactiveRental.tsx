@@ -106,11 +106,11 @@ const InactiveRental = () => {
             const clock_start = startTime.split('T')[1].split(':');
             const clock_end = endTime.split('T')[1].split(':');
 
-            let hh_e_s = parseInt(clock_end[0], 10);
+            let hh_e_s = parseInt(clock_end[0], 10) -2 ; // GMT+2
             let mm_e_s = parseInt(clock_end[1], 10);
             let ss_e_s = parseInt(clock_end[2], 10);
 
-            let hh_s_s = parseInt(clock_start[0], 10) -2 ; // GMT+2
+            let hh_s_s = parseInt(clock_start[0], 10);
             let mm_s_s = parseInt(clock_start[1], 10);
             let ss_s_s = parseInt(clock_start[2], 10);
 
