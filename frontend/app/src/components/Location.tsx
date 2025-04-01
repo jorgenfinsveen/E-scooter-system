@@ -16,7 +16,7 @@ type Coordinates = {
           width="100%"
           height="300"
           loading="lazy"
-          style={{ borderRadius: "5%", border: "0", filter: "invert(90%)" }}
+          style={{ borderRadius: "5%", border: "0" }}
           referrerPolicy="no-referrer-when-downgrade"
         />
       </section>
