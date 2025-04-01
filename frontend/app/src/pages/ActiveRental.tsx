@@ -19,14 +19,29 @@ const ActiveRental = () => {
 
     useEffect(() => {
         if (userId === '') {
-            setUserId(sessionStorage.getItem("user_id") || '');
-        } else {
-            fetch(`${apiUrl}user/${userId}`)
-            .then((response) => response.json())
-            .then((res) => setUserName(res.message.name.split(' ')[0])) 
-            .catch((error) => console.error('Error:', error))
+            const storedId = sessionStorage.getItem("user_id");
+            if (storedId) {
+                setUserId(storedId);
+            }
+            return; 
         }
-    }, []);
+    
+        const controller = new AbortController(); 
+        fetch(`${apiUrl}user/${userId}`, { signal: controller.signal })
+            .then((response) => response.json())
+            .then((res) => {
+                if (res.message?.name) {
+                    setUserName(res.message.name.split(' ')[0]);
+                }
+            })
+            .catch((error) => {
+                if (error.name !== 'AbortError') {
+                    console.error('Error:', error);
+                }
+            });
+    
+        return () => controller.abort(); 
+    }, [userId]);
 
 
     useEffect(() => {
