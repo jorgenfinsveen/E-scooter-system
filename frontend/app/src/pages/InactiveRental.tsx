@@ -106,13 +106,21 @@ const InactiveRental = () => {
             const clock_start = startTime.split('T')[1].split(':');
             const clock_end = endTime.split('T')[1].split(':');
 
-            let hh_s =  Math.abs(parseInt(clock_end[0], 10) - parseInt(clock_start[0], 10) - 2)
-            let mm_s = Math.abs(parseInt(clock_end[1], 10) - parseInt(clock_start[1], 10));
-            let ss_s = Math.abs(parseInt(clock_end[2], 10) - parseInt(clock_start[2], 10));
-            let total_seconds = (hh_s * 3600) + (mm_s * 60) + (ss_s * 1);
-            let hh = (Math.floor(total_seconds / 3600)).toString();
-            let mm = (Math.floor((total_seconds % 3600) / 60)).toString();
-            let ss = (total_seconds % 60).toString()
+            let hh_e_s = parseInt(clock_end[0], 10);
+            let mm_e_s = parseInt(clock_end[1], 10);
+            let ss_e_s = parseInt(clock_end[2], 10);
+
+            let hh_s_s = parseInt(clock_start[0], 10) -2 ; // GMT+2
+            let mm_s_s = parseInt(clock_start[1], 10);
+            let ss_s_s = parseInt(clock_start[2], 10);
+
+            let tot_e_s = (hh_e_s * 3600) + (mm_e_s * 60) + (ss_e_s * 1);
+            let tot_s_s = (hh_s_s * 3600) + (mm_s_s * 60) + (ss_s_s * 1);
+            let tot_s = Math.abs(tot_e_s - tot_s_s);
+
+            let hh = (Math.floor(tot_s / 3600)).toString();
+            let mm = (Math.floor((tot_s % 3600) / 60)).toString();
+            let ss = (tot_s % 60).toString()
 
             if (parseInt(hh) < 10) {
                 hh = `0${hh}`;
