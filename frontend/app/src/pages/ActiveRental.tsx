@@ -26,7 +26,7 @@ const ActiveRental = () => {
             .then((res) => setUserName(res.message.name.split(' ')[0])) 
             .catch((error) => console.error('Error:', error))
         }
-    })
+    }, []);
 
 
     useEffect(() => {
