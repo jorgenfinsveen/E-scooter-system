@@ -106,9 +106,13 @@ const InactiveRental = () => {
             const clock_start = startTime.split('T')[1].split(':');
             const clock_end = endTime.split('T')[1].split(':');
 
-            let hh = Math.abs(parseInt(clock_end[0], 10) - parseInt(clock_start[0], 10) - 2).toString();
-            let mm = Math.abs(parseInt(clock_end[1], 10) - parseInt(clock_start[1], 10)).toString();
-            let ss = Math.abs(parseInt(clock_end[2], 10) - parseInt(clock_start[2], 10)).toString();
+            let hh_s =  Math.abs(parseInt(clock_end[0], 10) - parseInt(clock_start[0], 10) - 2)
+            let mm_s = Math.abs(parseInt(clock_end[1], 10) - parseInt(clock_start[1], 10));
+            let ss_s = Math.abs(parseInt(clock_end[2], 10) - parseInt(clock_start[2], 10));
+            let total_seconds = (hh_s * 3600) + (mm_s * 60) + (ss_s * 1);
+            let hh = (Math.floor(total_seconds / 3600)).toString();
+            let mm = (Math.floor((total_seconds % 3600) / 60)).toString();
+            let ss = (total_seconds % 60).toString()
 
             if (parseInt(hh) < 10) {
                 hh = `0${hh}`;
@@ -125,7 +129,6 @@ const InactiveRental = () => {
             setHours(hh.toString());
             setMinutes(mm);
             setSeconds(ss);
-            //setPrice(rental.price);
         }
     });
     
