@@ -106,7 +106,7 @@ const InactiveRental = () => {
             const clock_start = startTime.split('T')[1].split(':');
             const clock_end = endTime.split('T')[1].split(':');
 
-            let hh = Math.abs(parseInt(clock_end[0], 10) - parseInt(clock_start[0], 10)).toString();
+            let hh = Math.abs(parseInt(clock_end[0], 10) - parseInt(clock_start[0], 10) - 2).toString();
             let mm = Math.abs(parseInt(clock_end[1], 10) - parseInt(clock_start[1], 10)).toString();
             let ss = Math.abs(parseInt(clock_end[2], 10) - parseInt(clock_start[2], 10)).toString();
 
