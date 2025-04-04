@@ -10,7 +10,7 @@ class SenseHAT:
     def __init__(self):
         self.sense_hat = SenseHat()
         self.controller = None
-
+        self.first_login = True
         self.input_thread = Thread(target=self.readEvent)
         
         
@@ -37,12 +37,15 @@ class SenseHAT:
         try:
             while True:
                 temperature = self.sense_hat.get_temperature()
+                if self.first_login:
+                    self.unlock_escooter()
                 print(f"Temperatur: {temperature:.2f}°C")
                 if temperature < 40:
                     print("Temperature is below 2°C. ")
                     self.controller.sendTemperature()
+                    self.lock_escooter()
                     break
-                time.sleep(10) 
+                time.sleep(5) 
         except KeyboardInterrupt:
             print("Avslutter temperaturkontroll")
 
