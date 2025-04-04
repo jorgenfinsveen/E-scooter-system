@@ -19,3 +19,6 @@ class Driver:
     def stop(self):
         for machine in self.machines:
             machine.stop()
+
+    def send(self, message, state_machine):
+        print(f"{state_machine}: {message}")
