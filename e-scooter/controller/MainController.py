@@ -1,5 +1,5 @@
 from api.mqtt import MQTTClient
-from controller.SenseHAT import SenseHat
+from controller.SenseHAT import SenseHAT
 
 X = [0,   0, 0]       
 R = [255, 0, 0]
