@@ -65,7 +65,7 @@ class MainController:
     def newInputEvent(self, event):
         self._show_arrow(event.direction)
 
-        if event.direction == "middle":
+        if event.directon == "middle":
             if self.middle_pressed_count %2 == 0:
                 self.driver.send("crash", 'crash_detector')
                 self.middle_pressed_count += 1
