@@ -12,13 +12,14 @@ class SenseHAT:
         self.controller = None
 
         self.input_thread = Thread(target=self.readEvent)
-        self.input_thread.start()
         
-        self.temperature_thread = Thread(target=self.checkTemperature)
-        self.temperature_thread.start()
+        
 
     def set_controller(self, controller):
         self.controller = controller
+        self.input_thread.start()
+        self.temperature_thread = Thread(target=self.checkTemperature)
+        self.temperature_thread.start()
 
     
     def readEvent(self):
