@@ -1,4 +1,3 @@
-from stmpy import Machine, Driver
 from api.mqtt import MQTTClient
 
 
@@ -40,30 +39,9 @@ class WeatherLock:
     def unlock(self):
         print("Unlocking the scooter")
         self.mqtt_client.publish("escooter/status", "unlocked")
-        #self.stm.send("unlock")
 
     def lock(self):
         print("Locking the scooter")
-        self.stm.send("lock")
-        #self.mqtt_client.publish("escooter/status", "locked")
+        self.mqtt_client.publish("escooter/status", "locked")
 
     
-
-
-
-"""
-escooter = WeatherLock()
-mqtt_client = MQTTClient(weather_lock=escooter)
-
-machine = Machine(name="escooter", transitions=[t0, t1, t2, t3], obj=escooter)
-escooter.stm = machine
-
-driver = Driver()
-driver.add_machine(machine)
-
-mqtt_client.weather_lock = escooter
-
-driver.start()
-# TODO: Add broker name 
-mqtt_client.start("broker_name", 1883) 
-"""

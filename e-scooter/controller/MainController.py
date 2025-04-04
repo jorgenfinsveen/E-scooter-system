@@ -40,26 +40,40 @@ class MainController:
         self.mqtt_client = MQTTClient()
         self.driver = None
         self.sense_controller = None
+        self.middle_pressed_count = 0
 
     def setDriver(self, driver):
         self.driver = driver
 
     def setSense(self, controller):
+        self.sense_hat = SenseHat()
         self.sense_controller = controller
 
 
     def unlock(self, payload):
         self.driver.start()
+        self.sense_hat.unlock_escooter()
 
 
     def lock(self, payload):
         self.driver.stop()
+        self.sense_hat.lock_escooter()
+
+    def sendTemperature(self):
+        self.driver.send("lock", "weather_lock")
 
     def newInputEvent(self, event):
         self._show_arrow(event.direction)
 
         if event.directon == "middle":
-            self.driver.send("crash", 'crash_detector')
+            if self.middle_pressed_count %2 == 0:
+                self.driver.send("crash", 'crash_detector')
+                self.middle_pressed_count += 1
+                self.sense_hat.sos()
+            else:
+                self.driver.send("safe", 'crash_detector')
+                self.middle_pressed_count += 1
+                self.sense_hat.stop_sos()
 
 
     def _show_arrow(self, direction):

@@ -25,7 +25,7 @@ t3 = {
     'trigger': 't',
     'source': 'crash_detected',
     'target': 'distress',
-    'effect': 'send_distress(); alarm_on()'
+    'effect': 'send_distress(); alarm_on();'
 }
 
 t4 = {
@@ -49,6 +49,7 @@ class CrashDetection:
         print("Alarm activated")
         self.mqtt_client.publish("escooter/alarm", "on")
 
+
     def alarm_off(self):
         print("Alarm deactivated")
         self.mqtt_client.publish("escooter/alarm", "off")
@@ -62,12 +63,4 @@ class CrashDetection:
         print("Stopping distress signal")
         self.stm.send("safe")
         self.mqtt_client.publish("escooter/distress", "stopped")
-
-
-"""
-escooter = CrashDetection()
-mqtt_client = MQTTClient(escooter)  
-machine = Machine(name="escooter", transitions=[t0, t1, t2, t3, t4], obj=escooter)
-escooter.stm = machine
-"""
 

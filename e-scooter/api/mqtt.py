@@ -10,6 +10,7 @@ class MQTTClient:
 
         if (host!=None and port!=None):
             self.client = mqtt.Client()
+            self.client._start(host, port)
 
 
     def _start(self, host, port):
@@ -17,7 +18,7 @@ class MQTTClient:
             self.client.connect(host, port)
             self.client.on_connect = self.on_connect
             self.client.on_message = self.on_message
-            self._client.loop_start()
+            self.client.loop_start()
 
             return self.client
         except Exception as e:
@@ -34,6 +35,7 @@ class MQTTClient:
             self.controller.unlock(payload)
         if payload["command"] == "lock":
             self.controller.lock(payload)
+        
         
 
     def publish(self, topic, message):
