@@ -46,7 +46,7 @@ class MainController:
         self.driver = driver
 
     def setSense(self, controller):
-        self.sense_hat = SenseHat()
+        self.sense_hat = SenseHAT()
         self.sense_controller = controller
 
 
