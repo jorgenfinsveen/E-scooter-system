@@ -1,6 +1,6 @@
 import sys
 import paho.mqtt.client as mqtt
-import tools.singleton as singleton
+from tools.singleton import singleton
 
 @singleton
 class MQTTClient:
