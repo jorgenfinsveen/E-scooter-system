@@ -42,6 +42,7 @@ class MainController:
         self.driver = None
         self.sense_controller = None
         self.middle_pressed_count = 0
+        self.locked = True
 
     def setDriver(self, driver):
         self.driver = driver
@@ -53,11 +54,13 @@ class MainController:
     def unlock(self):
         self.driver.start()
         self.controller_sense_hat.unlock_escooter()
+        self.locked = False
 
 
     def lock(self):
         self.driver.stop()
         self.controller_sense_hat.lock_escooter()
+        self.locked = True
 
     def sendTemperature(self):
         self.driver.send("lock", "weather_lock")
@@ -77,11 +80,12 @@ class MainController:
 
 
     def _show_arrow(self, direction):
-        if direction == "up":
-            self.controller_sense_hat.sense_hat.set_pixels(arrow_up)
-        elif direction == "down":
-            self.controller_sense_hat.sense_hat.set_pixels(arrow_down)
-        elif direction == "left":
-            self.controller_sense_hat.sense_hat.set_pixels(arrow_left)
-        elif direction == "right":
-            self.controller_sense_hat.sense_hat.set_pixels(arrow_right)
+        if not self.locked:
+            if direction == "up":
+                self.controller_sense_hat.sense_hat.set_pixels(arrow_up)
+            elif direction == "down":
+                self.controller_sense_hat.sense_hat.set_pixels(arrow_down)
+            elif direction == "left":
+                self.controller_sense_hat.sense_hat.set_pixels(arrow_left)
+            elif direction == "right":
+                self.controller_sense_hat.sense_hat.set_pixels(arrow_right)
