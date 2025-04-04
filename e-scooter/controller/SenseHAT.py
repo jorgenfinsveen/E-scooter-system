@@ -38,15 +38,16 @@ class SenseHAT:
             while True:
                 temperature = self.sense_hat.get_temperature()
                 print(f"Temperatur: {temperature:.2f}°C")
-                if temperature < 37.7:
+                if temperature < 2:
                     print("Temperature is below 2°C. ")
                     self.controller.sendTemperature()
                     self.lock_escooter()
+
                     break
                 if self.first_login:
                     self.unlock_escooter()
                     self.first_login = False
-                time.sleep(5) 
+                time.sleep(3) 
         except KeyboardInterrupt:
             print("Avslutter temperaturkontroll")
 
@@ -63,3 +64,10 @@ class SenseHAT:
 
     def lock_escooter(self):
         self.sense_hat.show_message("LOCK", scroll_speed=0.1, text_colour=[255, 0, 0], back_colour=[0, 0, 0])
+    
+  """   def ambulance(self):
+        for _ in range(5):
+            self.sense_hat.set_pixels(255, 0, 0)
+            time.sleep(0.01)
+            self.sense_hat.set_pixels(0,0,0)
+            time.sleep(0.01) """
