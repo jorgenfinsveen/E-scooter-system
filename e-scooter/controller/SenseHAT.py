@@ -41,6 +41,7 @@ class SenseHAT:
                 if temperature < 40:
                     print("Temperature is below 2°C. ")
                     self.controller.sendTemperature()
+                    break
                 time.sleep(10) 
         except KeyboardInterrupt:
             print("Avslutter temperaturkontroll")

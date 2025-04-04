@@ -1,5 +1,6 @@
 from api.mqtt import MQTTClient
 from controller.SenseHAT import SenseHAT
+from tools.singleton import singleton
 
 X = [0,   0, 0]       
 R = [255, 0, 0]
@@ -33,7 +34,7 @@ arrow_right = [pixel for row in arrow_right for pixel in row]
 
 
 
-
+@singleton
 class MainController:
 
     def __init__(self):
