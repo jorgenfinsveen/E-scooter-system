@@ -38,7 +38,7 @@ class SenseHAT:
             while True:
                 temperature = self.sense_hat.get_temperature()
                 print(f"Temperatur: {temperature:.2f}°C")
-                if temperature < -1:
+                if temperature < 40:
                     print("Temperature is below 2°C. ")
                     self.controller.sendTemperature()
                 time.sleep(10) 
