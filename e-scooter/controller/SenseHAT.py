@@ -38,10 +38,10 @@ class SenseHAT:
             while True:
                 temperature = self.sense_hat.get_temperature()
                 print(f"Temperatur: {temperature:.2f}°C")
-                if temperature < 2:
+                if temperature < -1:
                     print("Temperature is below 2°C. ")
                     self.controller.sendTemperature()
-                time.sleep(300) 
+                time.sleep(10) 
         except KeyboardInterrupt:
             print("Avslutter temperaturkontroll")
 
