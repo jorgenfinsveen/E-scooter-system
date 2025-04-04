@@ -20,8 +20,6 @@ class SenseHAT:
     def set_controller(self, controller):
         self.controller = controller
 
-    def getTemperature(self):
-        return self.sense_hat.getTemperature()
     
     def readEvent(self):
         try:
@@ -37,7 +35,7 @@ class SenseHAT:
     def checkTemperature(self):
         try:
             while True:
-                temperature = self.getTemperature()
+                temperature = self.sense_hat.get_temperature()
                 print(f"Temperatur: {temperature:.2f}°C")
                 if temperature < 2:
                     print("Temperature is below 2°C. ")
