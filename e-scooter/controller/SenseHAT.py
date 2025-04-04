@@ -51,7 +51,7 @@ class SenseHAT:
             print("Avslutter temperaturkontroll")
 
     def sos(self):
-        for i in range(5):
+        for i in range(3):
             self.sense_hat.show_message("SOS", scroll_speed=0.1, text_colour=[255, 0, 0], back_colour=[0, 0, 0])
 
     def stop_sos(self):

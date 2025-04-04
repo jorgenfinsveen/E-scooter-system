@@ -3,7 +3,7 @@ from controller.SenseHAT import SenseHAT
 from tools.singleton import singleton
 
 X = [0,   0, 0]       
-R = [255, 0, 0]
+R = [200, 162, 200]
 
 arrow_up = [
     X, X, X, R, R, X, X, X,
