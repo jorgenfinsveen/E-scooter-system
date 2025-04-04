@@ -45,6 +45,7 @@ class SenseHAT:
                     break
                 if self.first_login:
                     self.unlock_escooter()
+                    self.first_login = False
                 time.sleep(5) 
         except KeyboardInterrupt:
             print("Avslutter temperaturkontroll")
