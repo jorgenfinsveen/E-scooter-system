@@ -13,10 +13,7 @@ function App() {
         path="/scooter/:scooter_id/inactive"
         element={<InactiveRental />}
       />
-      <Route
-        path="/error"
-        element={<ErrorPage errorType={"User Occupied"} />}
-      />
+      <Route path="/error" element={<ErrorPage />} />
     </Routes>
   );
 }
