@@ -1,9 +1,15 @@
 import { useState, useEffect } from "react";
 import low_battery from "../assets/img/low_battery.png";
 import bad_weather from "../assets/img/bad_weather.png";
+import insufficient_funds from "../assets/img/insufficient_funds.png";
+import error from "../assets/img/error.png";
 import { Image } from "../components/Image";
 
-const ErrorPage = ({ errorType }: { errorType: string }) => {
+const ErrorPage = () => {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorImage, setErrorImage] = useState<string | null>(null);
+  const errorType = "Bad Weather"; // This should be passed as a prop
+
   const ErrorDict: Record<string, { message: string; image: string }> = {
     "Low Battery": {
       message:
@@ -17,7 +23,7 @@ const ErrorPage = ({ errorType }: { errorType: string }) => {
     },
     "Insufficient Funds": {
       message: "You do not have enough funds to rent this e-scooter.",
-      image: low_battery,
+      image: insufficient_funds,
     },
     "Rental Error": {
       message:
@@ -27,33 +33,30 @@ const ErrorPage = ({ errorType }: { errorType: string }) => {
     "User Occupied": {
       message:
         "You are already renting an e-scooter. Please return it before renting another one.",
-      image: low_battery,
+      image: error,
     },
     "E-scooter Occupied": {
       message:
         "The e-scooter is currently occupied. Please try another e-scooter.",
-      image: low_battery,
+      image: error,
     },
     "E-scooter Inoperatable": {
       message: "The e-scooter is inoperable. Please try another e-scooter.",
-      image: low_battery,
+      image: error,
     },
     "User Not Found": {
       message: "The user was not found. Please try again.",
-      image: low_battery,
+      image: error,
     },
     "E-scooter Not Found": {
       message: "The e-scooter was not found. Please try again.",
-      image: low_battery,
+      image: error,
     },
     "Transaction Error": {
       message: "There was an error with the transaction. Please try again.",
-      image: low_battery,
+      image: error,
     },
   };
-
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [errorImage, setErrorImage] = useState<string | null>(null);
 
   const setError = (type: string) => {
     if (ErrorDict[type]) {
@@ -72,7 +75,7 @@ const ErrorPage = ({ errorType }: { errorType: string }) => {
   return (
     <div className="error-page">
       <h1 className="page-title">{errorType || "Unknown Error"}</h1>
-      {errorImage && <Image src={errorImage} />}
+      {errorImage && <Image src={errorImage} width="19rem" height="10rem" />}
       <p className="error-message">{errorMessage}</p>
     </div>
   );
