@@ -248,8 +248,8 @@ class single_ride_service:
         self.scooter = self._parse_scooter(_scooter)
         self.user    = self._parse_user(_user)
 
-        if self.scooter["code"] != 0:
-            parse_code = self.parse_status(self.scooter["code"])
+        if self.scooter["status"] != 0:
+            parse_code = self.parse_status(self.scooter["status"])
             self._warn_logger(
                 title="single scooter unlock failed",
                 culprit="scooter",
@@ -257,7 +257,7 @@ class single_ride_service:
                 scooter_id=self.scooter["uuid"],
                 message=f"scooter error: {parse_code[0]}",
                 function=f"self._db.get_scooter({scooter_id})",
-                resp=f"status code: {self.scooter['code']}",
+                resp=f"status code: {self.scooter['status']}",
             )
             return False, parse_code[0], parse_code[1]
 
