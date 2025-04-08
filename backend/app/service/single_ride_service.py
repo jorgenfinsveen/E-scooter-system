@@ -248,8 +248,8 @@ class single_ride_service:
         self.scooter = self._parse_scooter(_scooter)
         self.user    = self._parse_user(_user)
 
-        if self.scooter["status"] != 0:
-            parse_code = self.parse_status(self.scooter["status"])
+        if self.scooter["code"] != 0:
+            parse_code = self.parse_status(self.scooter["code"])
             self._warn_logger(
                 title="single scooter unlock failed",
                 culprit="scooter",
@@ -257,7 +257,7 @@ class single_ride_service:
                 scooter_id=self.scooter["uuid"],
                 message=f"scooter error: {parse_code[0]}",
                 function=f"self._db.get_scooter({scooter_id})",
-                resp=f"status code: {self.scooter['status']}",
+                resp=f"status code: {self.scooter["code"]}",
             )
             return False, parse_code[0], parse_code[1]
 
@@ -300,6 +300,7 @@ class single_ride_service:
         if mqtt_unlock[0] and rental_started:
             return True, "unlock successful", ""
         elif not mqtt_unlock[0]:
+            parsed_status = self.parse_status(mqtt_unlock[1])
             self._warn_logger(
                 title="single scooter unlock failed",
                 culprit="mqtt",
@@ -307,9 +308,9 @@ class single_ride_service:
                 scooter_id=self.scooter["uuid"],
                 message="mqtt error: scooter unlock failed",
                 function=f"scooter_unlock_single({self.scooter['uuid']})",
-                resp=mqtt_unlock[1]
+                resp=f"satus code: {mqtt_unlock[1]} - {parsed_status[0]}"
             )
-            return False, mqtt_unlock[1], mqtt_unlock[2]
+            return False, parsed_status[0], parsed_status[1]
         else:
             self._warn_logger(
                 title="single scooter unlock failed",
