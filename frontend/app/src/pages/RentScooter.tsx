@@ -88,9 +88,13 @@ const RentScooter = () => {
       sessionStorage.setItem("user_id", userId);
       navigate(`/scooter/${scooter_id_num}/active`);
     } else {
-      console.error("Unlock failed: " + data.message);
-      alert("Unlock failed");
-      setActiveButton(false);
+      // Todo: Legg til endringer her.
+
+      //console.error("Unlock failed: " + data.message);
+      //alert("Unlock failed");
+      //setActiveButton(false);
+      const error_type = data.redirect;
+      navigate(`/error/${error_type}`);
     }
   };
 

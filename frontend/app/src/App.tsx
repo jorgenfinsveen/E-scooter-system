@@ -13,7 +13,7 @@ function App() {
         path="/scooter/:scooter_id/inactive"
         element={<InactiveRental />}
       />
-      <Route path="/error" element={<ErrorPage />} />
+      <Route path="/error/:error_type" element={<ErrorPage />} />
     </Routes>
   );
 }
