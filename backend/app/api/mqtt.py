@@ -176,7 +176,7 @@ class mqtt_client:
 
 
     # TODO: These needs to receive the whole scooter object. Needs to check if scooter is already locked/unlocked
-    def scooter_unlock_single(self : object, scooter : dict) -> tuple[bool, str, str]:
+    def scooter_unlock_single(self : object, scooter : dict) -> tuple[bool, int, str]:
         """
         This function unlocks a scooter.
         Args:
@@ -194,7 +194,7 @@ class mqtt_client:
         self._response_event.clear()
 
         if scooter['status'] == 11:
-            return False, "scooter already unlocked", "scooter-occupied"
+            return False, 11, "scooter-occupied"
 
         message = {
             "id": self._id,
@@ -219,15 +219,15 @@ class mqtt_client:
                     timestamp = self._message['timestamp']
 
                     if battery > 15 and status == 0:
-                        return True, "unlock successful", ""
+                        return True, status, ""
                     elif battery <= 15:
-                        return False, "battery too low", "low-battery"
+                        return False, status, "low-battery"
                     elif status > 0:
-                        return False, self._status_codes[str(status)]
+                        return False, status, "scooter-inoperable"
             except Exception as e:
-                return False, f"error parsing lock confirmation: {e}", "scooter-inoperable"
+                return False, 7, "scooter-inoperable"
         else:
-            return False, "timeout waiting for unlock confirmation", "scooter-inoperable"
+            return False, 7, "scooter-inoperable"
 
 
 
