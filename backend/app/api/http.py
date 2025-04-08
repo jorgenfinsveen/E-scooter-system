@@ -202,7 +202,10 @@ async def scooter_unlock_single(
     status_code = 200 if resp[0] else 400
 
     return JSONResponse(
-        content={"message": resp[1]},
+        content={
+            "message": resp[1],
+            "redirect": resp[2]
+            },
         status_code=status_code
     )
 

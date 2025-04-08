@@ -52,7 +52,7 @@ def _get_weather(latitude: float, longtiude: float) -> dict:
         
             
 
-def is_weather_ok(latitude: float, longtitude: float) -> tuple[bool, str]:
+def is_weather_ok(latitude: float, longtitude: float) -> tuple[bool, str, str]:
     """
     Check if the weather conditions are acceptable for scooter usage.
     Wether conditions are considered acceptable if the temperature is above the
@@ -73,18 +73,18 @@ def is_weather_ok(latitude: float, longtitude: float) -> tuple[bool, str]:
     ```
     """
     if DISABLE_WEATHER:
-        return True, "weather check disabled"
+        return True, "weather check disabled", ""
     
     weather = _get_weather(latitude, longtitude)
 
     if weather is None:
-        return False, "error fetching weather data"
+        return False, "error fetching weather data", "bad-weather"
 
     stats       = weather["properties"]["timeseries"][0]["data"]["instant"]["details"]
     temperature = float(stats["air_temperature"])
     humidity    = float(stats["relative_humidity"])
 
     if temperature >= WEATHER_TEMPERATURE_THRESHOLD:
-        return True, f"acceptable conditions <br/> temperature: {temperature} <br/> humidity: {humidity}"
+        return True, f"acceptable conditions <br/> temperature: {temperature} <br/> humidity: {humidity}", ""
     else:
-        return False, f"insufficient conditions <br/> Temperature: {temperature} <br/> humidity: {humidity}"
+        return False, f"insufficient conditions <br/> Temperature: {temperature} <br/> humidity: {humidity}", "bad-weather"

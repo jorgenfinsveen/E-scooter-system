@@ -163,7 +163,7 @@ class single_ride_service:
 
 
 
-    def unlock_scooter(self, scooter_id: int, user_id: int) -> tuple[bool, str]:
+    def unlock_scooter(self, scooter_id: int, user_id: int) -> tuple[bool, str, str]:
         """
         Unlock a scooter for a user. This function checks if the user has sufficient funds,
         if the scooter is available, and if the weather is ok. It will also perform the
@@ -191,7 +191,7 @@ class single_ride_service:
                 message="scooter error: scooter not found",
                 function=f"get_scooter({scooter_id})"
             )   
-            return False, "database: scooter not found"
+            return False, "database: scooter not found", "scooter-not-found"
         if _user is None:
             self._warn_logger(
                 title="single scooter unlock failed",
@@ -200,7 +200,7 @@ class single_ride_service:
                 message="user error: user not found",
                 function=f"get_user({user_id})"
             )
-            return False, "database: user not found"
+            return False, "database: user not found", "user-not-found"
 
         user_has_active_rental = self._db.user_has_active_rental(user_id)
         sctr_has_active_rental = self._db.scooter_has_active_rental(scooter_id)
@@ -214,7 +214,7 @@ class single_ride_service:
                 message="rental error: user has active rental",
                 function=f"user_has_active_rental({user_id})"
             )
-            return False, "user has active rental"
+            return False, "user has active rental", "user-occupied"
         
         if sctr_has_active_rental:
             self._warn_logger(
@@ -225,7 +225,7 @@ class single_ride_service:
                 message="rental error: scooter has active rental",
                 function=f"scooter_has_active_rental({scooter_id})"
             )
-            return False, "scooter is already rented"
+            return False, "scooter is already rented", "scooter-occupied"
         
 
         self.scooter = self._parse_scooter(_scooter)
@@ -246,7 +246,7 @@ class single_ride_service:
                 resp=weather_req[1],
                 location={"lat": self.scooter["latitude"], "lon": self.scooter["longtitude"]}
             )
-            return False, weather_req[1]
+            return False, weather_req[1], weather_req[2]
         
         if not balance_req[0]:
             self._warn_logger(
@@ -259,7 +259,7 @@ class single_ride_service:
                 resp=balance_req[1],
                 transaction={"price": 100.0, "funds": self.user["funds"]}
             )
-            return False, balance_req[1]
+            return False, balance_req[1], balance_req[2]
 
 
         mqtt_unlock = (True, "mqtt disabled", None) if DISABLE_MQTT else self._mqtt.scooter_unlock_single(self.scooter)
@@ -267,7 +267,7 @@ class single_ride_service:
 
 
         if mqtt_unlock[0] and rental_started:
-            return True, "unlock successful"
+            return True, "unlock successful", ""
         elif not mqtt_unlock[0]:
             self._warn_logger(
                 title="single scooter unlock failed",
@@ -278,7 +278,7 @@ class single_ride_service:
                 function=f"scooter_unlock_single({self.scooter['uuid']})",
                 resp=mqtt_unlock[1]
             )
-            return False, mqtt_unlock[1]
+            return False, mqtt_unlock[1], mqtt_unlock[2]
         else:
             self._warn_logger(
                 title="single scooter unlock failed",
@@ -288,7 +288,7 @@ class single_ride_service:
                 message="rental error: rental not started",
                 function=f"rental_started({self.user['id']}, {self.scooter['uuid']})",
             )
-            return False, "database error: rental not started"
+            return False, "database error: rental not started", "rental-error"
         
 
 

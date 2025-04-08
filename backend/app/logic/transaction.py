@@ -39,15 +39,15 @@ def validate_funds(user: dict, price: float) -> tuple[bool, str]:
     ```
     """
     if DISABLE_TRANSACTIONS:
-        return True, "transactions disabled"
+        return True, "transactions disabled", ""
     if db is None:
         _init_db_client()
     try:
         if user['funds'] < price:
-            return False, "insufficient funds"
-        return True, "funds validated"
+            return False, "insufficient funds", "insufficient-funds"
+        return True, "funds validated", ""
     except Exception as e:
-        return False, f"error validating funds: {e}"
+        return False, f"error validating funds: {e}", "insufficient-funds"
 
 
 
