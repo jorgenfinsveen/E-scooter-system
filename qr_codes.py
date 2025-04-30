@@ -6,7 +6,7 @@ def main():
     ip_address = input("Skriv inn IP-adressen til serveren: ")
     num_scooters = int(input("Hvor mange scootere skal det genereres QR-koder til? "))
 
-    qr_dir = "qr_codes"
+    qr_dir = "./qr_codes"
 
     if os.path.exists(qr_dir): #Sletter mappen hvis den finnes fra før slik at man ikke får dobbelt opp av QR-koder
         shutil.rmtree(qr_dir)

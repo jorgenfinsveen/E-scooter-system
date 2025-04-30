@@ -7,7 +7,9 @@ node_modules/
 .VSCodeCounter
 ios/
 ios
-
 qr_codes/
-
-qr_codes/
+qr_codes
+./qr_codes/
+.venv/
+.venv
+./qr_codes/
