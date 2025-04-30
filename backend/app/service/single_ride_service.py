@@ -257,7 +257,7 @@ class single_ride_service:
                 scooter_id=self.scooter["uuid"],
                 message=f"scooter error: {parse_code[0]}",
                 function=f"self._db.get_scooter({scooter_id})",
-                resp=f"status code: {self.scooter["code"]}",
+                resp=f"status code: {self.scooter['code']}",
             )
             return False, parse_code[0], parse_code[1]
 
