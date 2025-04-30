@@ -1,4 +1,5 @@
 from api.mqtt import MQTTClient
+from controller.MainController import MainController
 
 
 t0 = {
@@ -34,14 +35,17 @@ class WeatherLock:
     def __init__(self):
         self.stm = None
         self.mqtt_client = MQTTClient()
+        self.controller = MainController()
 
 
     def unlock(self):
         print("Unlocking the scooter")
         self.mqtt_client.publish("escooter/status", "unlocked")
+        self.controller.unlock()
 
     def lock(self):
         print("Locking the scooter")
         self.mqtt_client.publish("escooter/status", "locked")
+        self.controller.lock()
 
     

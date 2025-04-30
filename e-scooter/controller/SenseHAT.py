@@ -10,15 +10,16 @@ class SenseHAT:
     def __init__(self):
         self.sense_hat = SenseHat()
         self.controller = None
-
+        self.first_login = True
         self.input_thread = Thread(target=self.readEvent)
-        self.input_thread.start()
         
-        self.temperature_thread = Thread(target=self.checkTemperature)
-        self.temperature_thread.start()
+        
 
     def set_controller(self, controller):
         self.controller = controller
+        self.input_thread.start()
+        self.temperature_thread = Thread(target=self.checkTemperature)
+        self.temperature_thread.start()
 
     
     def readEvent(self):
@@ -40,18 +41,33 @@ class SenseHAT:
                 if temperature < 2:
                     print("Temperature is below 2°C. ")
                     self.controller.sendTemperature()
-                time.sleep(300) 
+                    self.lock_escooter()
+
+                    break
+                if self.first_login:
+                    self.unlock_escooter()
+                    self.first_login = False
+                time.sleep(3) 
         except KeyboardInterrupt:
             print("Avslutter temperaturkontroll")
 
     def sos(self):
-        self.sense_hat.show_message("SOS", scroll_speed=0.05, text_colour=[255, 0, 0], back_colour=[0, 0, 0])
+        for i in range(3):
+            self.sense_hat.show_message("SOS", scroll_speed=0.1, text_colour=[255, 0, 0], back_colour=[0, 0, 0])
 
     def stop_sos(self):
-        self.sense_hat.show("SAFE", scroll_speed=0.05, text_colour=[0,255,0], back_colour = [0,0,0])
+        for i in range(2):
+            self.sense_hat.show_message("SAFE", scroll_speed=0.1, text_colour=[0,255,0], back_colour = [0,0,0])
 
     def unlock_escooter(self):
-        self.sense_hat.show_message("UNLOCK", scroll_speed=0.05, text_colour=[0, 255, 0], back_colour=[0, 0, 0])
+        self.sense_hat.show_message("UNLOCK", scroll_speed=0.1, text_colour=[0, 255, 0], back_colour=[0, 0, 0])
 
     def lock_escooter(self):
-        self.sense_hat.show_message("LOCK", scroll_speed=0.05, text_colour=[255, 0, 0], back_colour=[0, 0, 0])
+        self.sense_hat.show_message("LOCK", scroll_speed=0.1, text_colour=[255, 0, 0], back_colour=[0, 0, 0])
+    
+  """   def ambulance(self):
+        for _ in range(5):
+            self.sense_hat.set_pixels(255, 0, 0)
+            time.sleep(0.01)
+            self.sense_hat.set_pixels(0,0,0)
+            time.sleep(0.01) """

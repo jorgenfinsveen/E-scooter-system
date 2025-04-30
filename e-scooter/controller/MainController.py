@@ -1,8 +1,9 @@
 from api.mqtt import MQTTClient
-from controller.SenseHAT import SenseHat
+from controller.SenseHAT import SenseHAT
+from tools.singleton import singleton
 
 X = [0,   0, 0]       
-R = [255, 0, 0]
+R = [200, 162, 200]
 
 arrow_up = [
     X, X, X, R, R, X, X, X,
@@ -33,7 +34,7 @@ arrow_right = [pixel for row in arrow_right for pixel in row]
 
 
 
-
+@singleton
 class MainController:
 
     def __init__(self):
@@ -41,23 +42,25 @@ class MainController:
         self.driver = None
         self.sense_controller = None
         self.middle_pressed_count = 0
+        self.locked = True
 
     def setDriver(self, driver):
         self.driver = driver
 
-    def setSense(self, controller):
-        self.sense_hat = SenseHat()
-        self.sense_controller = controller
+    def setSense(self, controller_sense_hat):
+        self.controller_sense_hat = controller_sense_hat
 
 
-    def unlock(self, payload):
+    def unlock(self):
         self.driver.start()
-        self.sense_hat.unlock_escooter()
+        self.controller_sense_hat.unlock_escooter()
+        self.locked = False
 
 
-    def lock(self, payload):
+    def lock(self):
         self.driver.stop()
-        self.sense_hat.lock_escooter()
+        self.controller_sense_hat.lock_escooter()
+        self.locked = True
 
     def sendTemperature(self):
         self.driver.send("lock", "weather_lock")
@@ -65,23 +68,24 @@ class MainController:
     def newInputEvent(self, event):
         self._show_arrow(event.direction)
 
-        if event.directon == "middle":
+        if event.action == "pressed" and event.direction == "middle":
             if self.middle_pressed_count %2 == 0:
                 self.driver.send("crash", 'crash_detector')
                 self.middle_pressed_count += 1
-                self.sense_hat.sos()
+                self.controller_sense_hat.sos()
             else:
                 self.driver.send("safe", 'crash_detector')
                 self.middle_pressed_count += 1
-                self.sense_hat.stop_sos()
+                self.controller_sense_hat.stop_sos()
 
 
     def _show_arrow(self, direction):
-        if direction == "up":
-            self.sense_controller.set_pixels(arrow_up)
-        elif direction == "down":
-            self.sense_controller.set_pixels(arrow_down)
-        elif direction == "left":
-            self.sense_controller.set_pixels(arrow_left)
-        elif direction == "right":
-            self.sense_controller.set_pixels(arrow_right)
+        if not self.locked:
+            if direction == "up":
+                self.controller_sense_hat.sense_hat.set_pixels(arrow_up)
+            elif direction == "down":
+                self.controller_sense_hat.sense_hat.set_pixels(arrow_down)
+            elif direction == "left":
+                self.controller_sense_hat.sense_hat.set_pixels(arrow_left)
+            elif direction == "right":
+                self.controller_sense_hat.sense_hat.set_pixels(arrow_right)
