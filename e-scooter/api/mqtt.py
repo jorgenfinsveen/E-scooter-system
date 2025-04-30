@@ -14,7 +14,7 @@ class MQTTClient:
 
         if (host!=None and port!=None):
             self.client = mqtt.Client()
-            self.client._start(host, port)
+            self._start(host, port)
 
 
     def _start(self, host, port):
@@ -36,10 +36,11 @@ class MQTTClient:
             sys.exit(1)
 
     def on_connect(self, client, userdata, flags, rc):
-        self._logger.debug("Connected to MQTT Broker:", mqtt.connack_string(rc))
+        self._logger.debug(f"Connected to MQTT Broker: {mqtt.connack_string(rc)}")
 
     def on_message(self, client, userdata, msg):
-        payload = msg.payload.decode()
+        payload_str = msg.payload.decode()
+        payload = json.loads(payload_str)
 
         self._server_id = payload["id"]
         self._scooter_id = payload["uuid"]
