@@ -1,7 +1,5 @@
-from api.mqtt import MQTTClient
-from controller.SenseHAT import SenseHAT
 from tools.singleton import singleton
-from __main__ import init_driver
+
 
 X = [0,   0, 0]
 r = [255, 0, 0]
@@ -88,7 +86,9 @@ class MainController:
         self.controller_sense_hat.set_pixels(dott_green)
         self.locked = False
         if not self._first_unlock:
-            init_driver()
+            from tools.initializer import Initializer
+            initializer = Initializer(self)
+            initializer.init_driver()
             self._first_unlock = False
         self.driver.start()
 
