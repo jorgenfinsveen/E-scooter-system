@@ -101,8 +101,7 @@ class mqtt_client:
         return self._client
 
 
-
-    def on_connect(self : object, client : mqtt.Client) -> None:
+    def on_connect(self, client, userdata, flags, rc) -> None:
         """
         Callback function for when the client connects to the broker.
         This function is called when the client connects to the broker.
@@ -115,7 +114,7 @@ class mqtt_client:
 
 
 
-    def on_message(self : object, client : mqtt.Client, userdata : object, msg : dict) -> None:
+    def on_message(self, client, userdata, msg) -> None:
         """
         Callback function for when a message is received from the broker.
         This function is called when a message is received from the broker.
