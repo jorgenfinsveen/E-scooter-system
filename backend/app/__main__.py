@@ -13,7 +13,8 @@ from colorlog import ColoredFormatter
 
 
 DEPLOYMENT_MODE = os.getenv('DEPLOYMENT_MODE', 'TEST')
-ENV = ".env.prod" if DEPLOYMENT_MODE == 'PROD' else ".env.test"
+#ENV = ".env.prod" if DEPLOYMENT_MODE == 'PROD' else ".env.test"
+ENV = ".env.test"
 ENV_PATH = Path(__file__).resolve().parent / ENV
 load_dotenv(ENV_PATH)
 
