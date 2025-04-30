@@ -2,8 +2,32 @@ from api.mqtt import MQTTClient
 from controller.SenseHAT import SenseHAT
 from tools.singleton import singleton
 
-X = [0,   0, 0]       
-R = [200, 162, 200]
+X = [0,   0, 0]
+r = [255, 0, 0]
+R = [0, 0, 255]
+G = [0,   255, 0]
+
+dott_green = [
+    X, X, X, X, X, X, X, X,
+    X, X, X, X, X, X, X, X,
+    X, X, X, X, X, X, X, X,
+    X, X, X, G, G, X, X, X,
+    X, X, X, G, G, X, X, X,
+    X, X, X, X, X, X, X, X,
+    X, X, X, X, X, X, X, X,
+    X, X, X, X, X, X, X, X,
+]
+
+dott_red = [
+    X, X, X, X, X, X, X, X,
+    X, X, X, X, X, X, X, X,
+    X, X, X, X, X, X, X, X,
+    X, X, X, r, r, X, X, X,
+    X, X, X, r, r, X, X, X,
+    X, X, X, X, X, X, X, X,
+    X, X, X, X, X, X, X, X,
+    X, X, X, X, X, X, X, X,
+]
 
 arrow_up = [
     X, X, X, R, R, X, X, X,
@@ -27,7 +51,7 @@ arrow_left = [
     X, X, X, R, R, X, X, X
 ]
 
-arrow_down = arrow_up[::-1] 
+arrow_down = arrow_up[::-1]
 
 arrow_right = [row[::-1] for row in [arrow_left[i:i+8] for i in range(0, 64, 8)]]
 arrow_right = [pixel for row in arrow_right for pixel in row]
@@ -56,15 +80,18 @@ class MainController:
 
     def setSense(self, controller_sense_hat):
         self.controller_sense_hat = controller_sense_hat
+        self.controller_sense_hat.sense_hat.set_pixels(dott_red)
 
 
     def unlock(self):
+        self.controller_sense_hat.sense_hat.set_pixels(dott_green)
         self.driver.start()
         self.controller_sense_hat.unlock_escooter()
         self.locked = False
 
 
     def lock(self):
+        self.controller_sense_hat.sense_hat.set_pixels(dott_red)
         self.driver.stop()
         self.controller_sense_hat.lock_escooter()
         self.locked = True
@@ -86,6 +113,7 @@ class MainController:
                 self.controller_sense_hat.stop_sos()
 
 
+
     def _show_arrow(self, direction):
         if not self.locked:
             if direction == "up":
@@ -96,3 +124,5 @@ class MainController:
                 self.controller_sense_hat.sense_hat.set_pixels(arrow_left)
             elif direction == "right":
                 self.controller_sense_hat.sense_hat.set_pixels(arrow_right)
+            else:
+                self.controller_sense_hat.sense_hat.set_pixels(dott_green)
