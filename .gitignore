@@ -13,3 +13,5 @@ qr_codes
 .venv/
 .venv
 ./qr_codes/
+
+./qr_codes/

@@ -65,9 +65,12 @@ class SenseHAT:
     def lock_escooter(self):
         self.sense_hat.show_message("LOCK", scroll_speed=0.1, text_colour=[255, 0, 0], back_colour=[0, 0, 0])
     
-  """   def ambulance(self):
+  
+"""   
+    def ambulance(self):
         for _ in range(5):
             self.sense_hat.set_pixels(255, 0, 0)
             time.sleep(0.01)
             self.sense_hat.set_pixels(0,0,0)
-            time.sleep(0.01) """
+            time.sleep(0.01) 
+"""
