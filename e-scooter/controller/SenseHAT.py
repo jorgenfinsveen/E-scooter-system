@@ -42,10 +42,10 @@ class SenseHAT:
             self.sense_hat.show_message("SAFE", scroll_speed=0.1, text_colour=[0,255,0], back_colour=[0,0,0])
         
     def unlock_escooter(self):
-        self.sense_hat.show_message("UNLOCK", scroll_speed=0.2, text_colour=[0, 255, 0], back_colour=[0, 0, 0])  
+        self.sense_hat.show_message("UNLOCK", scroll_speed=0.05, text_colour=[0, 255, 0], back_colour=[0, 0, 0])  
 
     def lock_escooter(self, pixels=None):
-        self.sense_hat.show_message("LOCK", scroll_speed=0.2, text_colour=[255, 0, 0], back_colour=[0, 0, 0]) 
+        self.sense_hat.show_message("LOCK", scroll_speed=0.05, text_colour=[255, 0, 0], back_colour=[0, 0, 0]) 
         if pixels is not None:
             self.sense_hat.set_pixels(pixels)
 

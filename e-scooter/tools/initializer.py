@@ -24,4 +24,4 @@ class Initializer:
         driver.add_machine(weather_lock_stm)
         driver.add_machine(crash_detector_stm)
 
-        self.main_controller.set_driver(driver)
+        self.main_controller.setDriver(driver)

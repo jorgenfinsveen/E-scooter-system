@@ -44,7 +44,7 @@ class CrashDetection:
         self._logger.warning("Crash detected: Sending distress signal in 10 seconds.")
     
     def user_safe(self):
-        self._logger.info("User is safe: Stopping distress signal.")
+        self._logger.warning("User is safe: Stopping distress signal.")
     
     def send_distress(self):
         self._logger.warning("Sending distress signal")

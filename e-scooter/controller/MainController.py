@@ -1,3 +1,4 @@
+import logging
 from tools.singleton import singleton
 
 
@@ -68,6 +69,7 @@ class MainController:
         self.middle_pressed_count = 0
         self.locked = True
         self._first_unlock = True
+        self.logger = logging.getLogger(__name__)
 
     def set_mqtt_client(self, mqtt_client):
         self.mqtt_client = mqtt_client
@@ -100,7 +102,7 @@ class MainController:
     def request_temperature(self):
         temperature = self.controller_sense_hat.check_temperature()
         message = "temperature_valid" if temperature >= 2 else "temperature_invalid"
-        self.logger.debug(f"Temperature: {temperature:.2f}°C" - f" {message}")
+        self.logger.debug(f"Temperature: {temperature}°C - {message}")
         self.driver.send(message, "weather_lock")
 
     def sendTemperature(self):
