@@ -70,6 +70,7 @@ class MainController:
         self.locked = True
         self._first_unlock = True
         self.logger = logging.getLogger(__name__)
+        self.active_crash = False
 
     def set_mqtt_client(self, mqtt_client):
         self.mqtt_client = mqtt_client
@@ -115,14 +116,16 @@ class MainController:
             if self.middle_pressed_count %2 == 0:
                 self.driver.send("crash", 'crash_detector')
                 self.middle_pressed_count += 1
+                self.active_crash = True
                 self.controller_sense_hat.sos()
             else:
                 self.driver.send("safe", 'crash_detector')
                 self.middle_pressed_count += 1
+                self.active_crash = False
                 self.controller_sense_hat.stop_sos()
 
     def _show_arrow(self, direction, action):
-        if not self.locked and (action == "pressed" or action == "held"):
+        if not self.locked and (action == "pressed" or action == "held") and not self.active_crash:
             if direction == "up":
                 self.controller_sense_hat.set_pixels(arrow_up)
                 return True
