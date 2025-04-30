@@ -2,6 +2,7 @@ import json
 import sys
 import logging
 import time
+from threading import Thread
 import paho.mqtt.client as mqtt
 from tools.singleton import singleton
 
@@ -49,13 +50,13 @@ class MQTTClient:
 
 
         if self._command == "unlock":
+            response = self._build_response()
+            self.publish(f"escooter/response/{self._scooter_id}", response)
             self.controller.unlock()
-            response = self._build_response()
-            self.publish(f"escooter/response/{self._scooter_id}", response)
         elif self._command == "lock":
-            self.controller.lock()
             response = self._build_response()
             self.publish(f"escooter/response/{self._scooter_id}", response)
+            self.controller.lock()
         else:
             self._logger.error("Unknown command received:", self._command)
         
