@@ -8,6 +8,9 @@ services:
       - "8080:8080"
     depends_on:
       - mosquitto
+    environment:
+      MQTT_HOST_PROD: mosquitto
+      MQTT_HOST_TEST: mosquitto
     networks:
       - app-network
 
