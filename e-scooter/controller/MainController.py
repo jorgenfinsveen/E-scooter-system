@@ -86,7 +86,6 @@ class MainController:
     def unlock(self):
         self.controller_sense_hat.sense_hat.set_pixels(dott_green)
         self.driver.start()
-        #self.controller_sense_hat.unlock_escooter()
         self.locked = False
 
 
@@ -101,7 +100,7 @@ class MainController:
 
     def newInputEvent(self, event):
         if not self._show_arrow(event.direction):
-            self.controller:sense_hat.set_pixels(dott_green)
+            self.controller_sense_hat.set_pixels(dott_green)
         elif event.action == "pressed" and event.direction == "middle":
             if self.middle_pressed_count %2 == 0:
                 self.driver.send("crash", 'crash_detector')
@@ -127,13 +126,11 @@ class MainController:
                 self.controller_sense_hat.sense_hat.set_pixels(arrow_down)
                 return True
             elif direction == "left":
-                return True
                 self.controller_sense_hat.sense_hat.set_pixels(arrow_left)
+                return True
             elif direction == "right":
                 self.controller_sense_hat.sense_hat.set_pixels(arrow_right)
             else:
                 self.controller_sense_hat.sense_hat.set_pixels(dott_green)
                 return True
-            else:
-                self.controller_sense_hat.sense_hat.set_pixels(dott_green)
         return False
