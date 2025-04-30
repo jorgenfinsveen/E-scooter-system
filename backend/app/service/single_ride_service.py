@@ -294,8 +294,10 @@ class single_ride_service:
 
 
         mqtt_unlock = (True, "mqtt disabled", None) if DISABLE_MQTT else self._mqtt.scooter_unlock_single(self.scooter)
-        rental_started = self._db.rental_started(self.user["id"], self.scooter["uuid"])
-
+        if (mqtt_unlock[0]):
+            rental_started = self._db.rental_started(self.user["id"], self.scooter["uuid"])
+        else:
+            rental_started = False
 
         if mqtt_unlock[0] and rental_started:
             return True, "unlock successful", ""

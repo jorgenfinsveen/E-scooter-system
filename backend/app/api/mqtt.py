@@ -124,12 +124,11 @@ class mqtt_client:
             userdata (object): User data passed to the callback.
             msg (dict): The message received from the broker.
         """
-        message = json.loads(msg.payload)
+        payload_str = msg.payload.decode()
+        message = json.loads(payload_str)
         self._logger.info(f"At {self.input_topic} - received message: {message}")
         self._message = message
-
-        if message.get("command") == "unlock_ack":  
-            self._response_event.set()
+        self._response_event.set()
 
 
 
@@ -212,7 +211,7 @@ class mqtt_client:
 
         if response:
             try:
-                if self._message['id'] == self._id and self._message['uuid'] == scooter['uuid']:
+                if int(self._message['id']) == int(self._id) and str(self._message['uuid']) == str(scooter['uuid']):
                     battery   = int(self._message['battery'])
                     status    = int(self._message['status'])
                     # location  = str(self._message['location'])
@@ -225,8 +224,11 @@ class mqtt_client:
                     elif status > 0:
                         return False, status, "scooter-inoperable"
             except Exception as e:
+                self._logger.error(f"Exception while parsing unlock response: {e}")
+                self._logger.error(f"Message content: {self._message}")
                 return False, 7, "scooter-inoperable"
         else:
+            self._logger.error("Did not get response")
             return False, 7, "scooter-inoperable"
 
 
@@ -266,7 +268,7 @@ class mqtt_client:
 
         if response:
             try:
-                if self._message['_id'] == self._id and self._message['uuid'] == scooter["uuid"]:
+                if int(self._message['id']) == int(self._id) and str(self._message['uuid']) == str(scooter["uuid"]):
                     battery   = int(self._message['battery'])
                     status    = int(self._message['status'])
                     location  = str(self._message['location'])
