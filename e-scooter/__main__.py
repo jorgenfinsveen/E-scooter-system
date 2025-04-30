@@ -1,7 +1,7 @@
 import logging
 import argparse
 from api.mqtt import MQTTClient
-from stm.Driver import Driver
+from stm.Driver import Driver, ScooterDriver
 from stm.CrashDetection import CrashDetection, getCrashTransitions
 from stm.WeatherLock import WeatherLock, getWeatherTransitions
 from stmpy import Machine
@@ -11,7 +11,7 @@ from colorlog import ColoredFormatter
 
 parser = argparse.ArgumentParser(description="Start e-scooter client.")
 parser.add_argument("--id",   type=int, default=1,             help="Scooter ID (must be positive integer)")
-parser.add_argument("--host", type=str, default="10.22.51.44", help="MQTT broker host (default: 10.22.51.44)")
+parser.add_argument("--host", type=str, default="10.22.49.66", help="MQTT broker host (default: 10.22.49.66)")
 parser.add_argument("--port", type=int, default=1885,          help="MQTT broker port (default: 1885)")
 args = parser.parse_args()
 
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     main_controller.set_mqtt_client(mqtt_client)
 
 
-    driver = Driver()
+    driver = ScooterDriver()
 
     crash_detector = CrashDetection()
     crash_detector_stm = Machine(transitions=getCrashTransitions(), obj=crash_detector, name='crash_detector')
