@@ -1,79 +1,105 @@
 import { useState, useEffect } from "react";
 import low_battery from "../assets/img/low_battery.png";
 import bad_weather from "../assets/img/bad_weather.png";
+import insufficient_funds from "../assets/img/insufficient_funds.png";
+import error from "../assets/img/error.png";
 import { Image } from "../components/Image";
+import { useParams } from "react-router-dom";
 
-const ErrorPage = ({ errorType }: { errorType: string }) => {
-  const ErrorDict: Record<string, { message: string; image: string }> = {
-    "Low Battery": {
+const ErrorPage = () => {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorImage, setErrorImage] = useState<string | null>(null);
+  const [errorTitle, setErrorTitle] = useState<string | null>(null);
+  //const errorType = "Bad Weather"; // This should be passed as a prop
+  const { error_type } = useParams<{ error_type: string }>();
+  const [errorType, setErrorType] = useState<string | undefined>("low-battery");
+  //const errorTypeStr = ;
+
+  const ErrorDict: Record<
+    string,
+    { title: string; message: string; image: string }
+  > = {
+    "low-battery": {
+      title: "Low Battery",
       message:
         "The e-scooter has a low battery. Please change to another e-scooter.",
       image: low_battery,
     },
-    "Bad Weather": {
+    "bad-weather": {
+      title: "Bad Weather",
       message:
         "The weather is not suitable for driving. Please try again later.",
       image: bad_weather,
     },
-    "Insufficient Funds": {
+    "insufficient-funds": {
+      title: "Insufficient Funds",
       message: "You do not have enough funds to rent this e-scooter.",
-      image: low_battery,
+      image: insufficient_funds,
     },
-    "Rental Error": {
+    "rental-error": {
+      title: "Rental Error",
       message:
         "There was an error while renting the e-scooter. Please try again.",
       image: low_battery,
     },
-    "User Occupied": {
+    "user-occupied": {
+      title: "User Occupied",
       message:
         "You are already renting an e-scooter. Please return it before renting another one.",
-      image: low_battery,
+      image: error,
     },
-    "E-scooter Occupied": {
+    "scooter-occupied": {
+      title: "Scooter Occupied",
       message:
         "The e-scooter is currently occupied. Please try another e-scooter.",
-      image: low_battery,
+      image: error,
     },
-    "E-scooter Inoperatable": {
+    "scooter-inoperable": {
+      title: "Scooter Inoperable",
       message: "The e-scooter is inoperable. Please try another e-scooter.",
-      image: low_battery,
+      image: error,
     },
-    "User Not Found": {
+    "user-not-found": {
+      title: "User not Found",
       message: "The user was not found. Please try again.",
-      image: low_battery,
+      image: error,
     },
-    "E-scooter Not Found": {
+    "scooter-not-found": {
+      title: "Scooter not Found",
       message: "The e-scooter was not found. Please try again.",
-      image: low_battery,
+      image: error,
     },
-    "Transaction Error": {
+    "transaction-error": {
+      title: "Transaction Error",
       message: "There was an error with the transaction. Please try again.",
-      image: low_battery,
+      image: error,
     },
   };
 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [errorImage, setErrorImage] = useState<string | null>(null);
-
-  const setError = (type: string) => {
-    if (ErrorDict[type]) {
-      setErrorMessage(ErrorDict[type].message);
-      setErrorImage(ErrorDict[type].image);
-    } else {
-      setErrorMessage("An unknown error occurred. Please try again.");
-      setErrorImage(low_battery);
+  const setError = (type: string | undefined) => {
+    if (type !== undefined) {
+      if (ErrorDict[type]) {
+        setErrorMessage(ErrorDict[type].message);
+        setErrorImage(ErrorDict[type].image);
+        setErrorTitle(ErrorDict[type].title);
+      } else {
+        setErrorMessage("An unknown error occurred. Please try again.");
+        setErrorImage(error);
+        setErrorTitle("Unknown Error");
+      }
     }
   };
 
   useEffect(() => {
-    setError(errorType);
-  }, [errorType]);
+    setErrorType(error_type?.toString());
+    setError(error_type?.toString());
+  });
 
   return (
     <div className="error-page">
-      <h1 className="page-title">{errorType || "Unknown Error"}</h1>
-      {errorImage && <Image src={errorImage} />}
-      <p className="error-message">{errorMessage}</p>
+      <h1 className="page-title">{errorTitle || "Unknown Error"}</h1>
+      {errorImage && <Image src={errorImage} width="19rem" height="10rem" />}
+      <p className="primary-paragraph">{errorMessage}</p>
     </div>
   );
 };

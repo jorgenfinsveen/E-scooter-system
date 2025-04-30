@@ -265,6 +265,18 @@ class db:
         
 
 
+    def update_scooter_status(self: object, scooter_id: int, status: int) -> bool:
+        query = "UPDATE scooters SET status = %s WHERE uuid = %s"
+        self._logger.info(f"update_scooter_status: params: {status}, {scooter_id}")
+        try:
+            self._cursor.execute(query, (status, scooter_id))
+            self._conn.commit()
+            self._logger.info(f"Scooter info updated: {scooter_id}")
+            return True
+        except mysql.connector.Error as e:
+            self._logger.error(f"Error updating scooter info: {e}")
+            return False
+
     def _update_scooter_info(self: object, scooter_id: int, lat: float, lon: float, status: int) -> bool:
         """
         Internal function to update the scooter information in the database.

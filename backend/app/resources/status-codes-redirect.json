@@ -1,0 +1,14 @@
+{
+  "0": "",
+  "1": "low-battery",
+  "2": "bad-weather",
+  "3": "scooter-inoperable",
+  "4": "scooter-inoperable",
+  "5": "bad-weather",
+  "6": "scooter-inoperable",
+  "7": "scooter-inoperable",
+  "8": "scooter-inoperable",
+  "9": "invalid-parking",
+  "10": "charging",
+  "11": "scooter-occupied"
+}
