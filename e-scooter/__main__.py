@@ -1,7 +1,7 @@
 import logging
 import argparse
 from api.mqtt import MQTTClient
-from stm.Driver import Driver
+from stm.Driver import Driver, ScooterDriver
 from stm.CrashDetection import CrashDetection, getCrashTransitions
 from stm.WeatherLock import WeatherLock, getWeatherTransitions
 from stmpy import Machine
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     main_controller.set_mqtt_client(mqtt_client)
 
 
-    driver = Driver()
+    driver = ScooterDriver()
 
     crash_detector = CrashDetection()
     crash_detector_stm = Machine(transitions=getCrashTransitions(), obj=crash_detector, name='crash_detector')
