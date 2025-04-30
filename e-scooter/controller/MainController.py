@@ -100,7 +100,7 @@ class MainController:
 
     def newInputEvent(self, event):
         if not self._show_arrow(event.direction):
-            self.controller_sense_hat.set_pixels(dott_green)
+            self.controller_sense_hat.sense_hat.set_pixels(dott_green)
         elif event.action == "pressed" and event.direction == "middle":
             if self.middle_pressed_count %2 == 0:
                 self.driver.send("crash", 'crash_detector')
