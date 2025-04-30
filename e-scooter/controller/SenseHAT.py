@@ -14,7 +14,7 @@ class SenseHAT:
         self.controller = None
         self.first_login = True
         self.input_thread = Thread(target=self.readEvent)
-        
+        self.temperature_thread = Thread(target=self.checkTemperature)
         
 
     def set_controller(self, controller):
@@ -68,8 +68,7 @@ class SenseHAT:
     def lock_escooter(self):
         self.sense_hat.show_message("LOCK", scroll_speed=0.1, text_colour=[255, 0, 0], back_colour=[0, 0, 0])
         self._readTemperature = False
-        self.temperature_thread.join()
-    
+        self.temperature_thread = None    
   
 """   
     def ambulance(self):

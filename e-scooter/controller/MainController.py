@@ -110,15 +110,15 @@ class MainController:
                 self.driver.send("safe", 'crash_detector')
                 self.middle_pressed_count += 1
                 self.controller_sense_hat.stop_sos()
-        else:
-            self.controller_sense_hat.sense_hat.set_pixels(dott_green)
+
+
 
 
 
 
 
     def _show_arrow(self, direction, action):
-        if not self.locked and action == "pressed":
+        if not self.locked and (action == "pressed" or action == "held"):
             if direction == "up":
                 self.controller_sense_hat.sense_hat.set_pixels(arrow_up)
                 return True
@@ -130,4 +130,5 @@ class MainController:
                 return True
             elif direction == "right":
                 self.controller_sense_hat.sense_hat.set_pixels(arrow_right)
+                return True
         return False

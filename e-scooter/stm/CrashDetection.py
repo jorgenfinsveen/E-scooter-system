@@ -12,7 +12,7 @@ t1 = {
     'trigger': 'crash',
     'source': 'standby',
     'target': 'crash_detected',
-    'effect': 'start_timer("t", 60)'
+    'effect': 'start_timer("t", 10000)'
 }
 
 t2 = {
