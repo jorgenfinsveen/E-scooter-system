@@ -99,9 +99,9 @@ class MainController:
         self.driver.send("lock", "weather_lock")
 
     def newInputEvent(self, event):
-        if not self._show_arrow(event.direction):
+        if not self._show_arrow(event.direction, event.action):
             self.controller_sense_hat.sense_hat.set_pixels(dott_green)
-        elif event.action == "pressed" and event.direction == "middle":
+        if event.action == "pressed" and event.direction == "middle":
             if self.middle_pressed_count %2 == 0:
                 self.driver.send("crash", 'crash_detector')
                 self.middle_pressed_count += 1
@@ -117,8 +117,8 @@ class MainController:
 
 
 
-    def _show_arrow(self, direction):
-        if not self.locked:
+    def _show_arrow(self, direction, action):
+        if not self.locked and action == "pressed":
             if direction == "up":
                 self.controller_sense_hat.sense_hat.set_pixels(arrow_up)
                 return True
@@ -130,7 +130,4 @@ class MainController:
                 return True
             elif direction == "right":
                 self.controller_sense_hat.sense_hat.set_pixels(arrow_right)
-            else:
-                self.controller_sense_hat.sense_hat.set_pixels(dott_green)
-                return True
         return False
