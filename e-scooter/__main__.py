@@ -1,10 +1,7 @@
 import logging
 import argparse
 from api.mqtt import MQTTClient
-from stm.Driver import Driver, ScooterDriver
-from stm.CrashDetection import CrashDetection, getCrashTransitions
-from stm.WeatherLock import WeatherLock, getWeatherTransitions
-from stmpy import Machine
+from tools.init import init_driver
 from controller.MainController import MainController
 from controller.SenseHAT import SenseHAT
 from colorlog import ColoredFormatter 
@@ -26,7 +23,6 @@ LOGGER_LEVEL = logging.DEBUG
 MQTT_INPUT_TOPIC = f"escooter/command/{SCOOTER_ID}"
 MQTT_OUTPUT_TOPIC = f"escooter/response/{SCOOTER_ID}"
 
-
 formatter = ColoredFormatter(
     "%(log_color)s[%(asctime)s] [%(levelname)s] [%(filename)s:%(lineno)d in %(funcName)s()] %(message)s",
     datefmt="%H:%M:%S",
@@ -39,7 +35,6 @@ formatter = ColoredFormatter(
     }
 )
 
-
 def setup_logging():
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
@@ -49,23 +44,6 @@ def setup_logging():
     logger.addHandler(handler)
     
     return logger
-
-
-
-def init_driver():
-    driver = ScooterDriver()
-    weather_lock   = WeatherLock()
-    crash_detector = CrashDetection()
-    weather_lock_stm   = Machine(transitions=getWeatherTransitions(), obj=weather_lock,   name='weather_lock')
-    crash_detector_stm = Machine(transitions=getCrashTransitions(),   obj=crash_detector, name='crash_detector')
-    weather_lock.stm   = weather_lock_stm
-    crash_detector.stm = crash_detector_stm
-    driver.add_machine(weather_lock_stm)
-    driver.add_machine(crash_detector_stm)
-
-    main_controller.setDriver(driver)
-
-
 
 if __name__ == "__main__":
     logger = setup_logging()
@@ -80,8 +58,7 @@ if __name__ == "__main__":
     logger.info(f"\tConnected:\t {mqtt_client.is_connected()}")
 
     main_controller.set_mqtt_client(mqtt_client)
-
-    init_driver()
+    main_controller.setDriver(init_driver()) 
 
     senseHat = SenseHAT()
     main_controller.setSense(senseHat)
