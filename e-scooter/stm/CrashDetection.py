@@ -1,66 +1,52 @@
-from stmpy import Machine, Driver
+import logging
 from api.mqtt import MQTTClient
-
+from controller.MainController import MainController
 
 t0 = {
     'source': 'initial',
-    'target': 'standby',
+    'target': 'standby'
 }
 
 t1 = {
-    'trigger': 'crash',
-    'source': 'standby',
-    'target': 'crash_detected',
-    'effect': 'start_timer("t", 60)'
+    'source':  'standby',
+    'target':  'crash_detected',
+    'effect':  'start_timer("t", 10_000); report_crash()',
+    'trigger': 'crash'
 }
 
 t2 = {
-    'trigger': 'safe',
-    'source': 'crash_detected',
-    'target': 'standby',
-    'effect': 'stop_timer("t")'
+    'source':  'crash_detected',
+    'target':  'standby',
+    'effect':  'stop_timer("t"); user_safe()',
+    'trigger': 'safe'
 }
 
 t3 = {
-    'trigger': 't',
-    'source': 'crash_detected',
-    'target': 'distress',
-    'effect': 'send_distress(); alarm_on();'
+    'source':  'crash_detected',
+    'target':  'distress',
+    'effect':  'send_distress()',
+    'trigger': 't'
 }
-
-t4 = {
-    'trigger': 'safe',
-    'source': 'distress',
-    'target': 'standby',
-    'effect': 'stop_distress(); alarm_off()'
-}
-
 
 
 def getCrashTransitions():
-    return [t0, t1, t2, t3, t4]
+    return [t0, t1, t2, t3]
 
 class CrashDetection:
+
     def __init__(self):
+        self._logger = logging.getLogger(__name__)
         self.stm = None
         self.mqtt_client = MQTTClient()
+        self.controller = MainController()
 
-    def alarm_on(self):
-        print("Alarm activated")
-        self.mqtt_client.publish("escooter/alarm", "on")
-
-
-    def alarm_off(self):
-        print("Alarm deactivated")
-        self.mqtt_client.publish("escooter/alarm", "off")
-
+    def report_crash(self):
+        self._logger.warning("Crash detected: Sending distress signal in 10 seconds.")
+    
+    def user_safe(self):
+        self._logger.warning("User is safe: Stopping distress signal.")
+    
     def send_distress(self):
-        print("Sending distress signal")
-        self.stm.send("crash")
-        self.mqtt_client.publish("escooter/distress", "sent")
-
-    def stop_distress(self):
-        print("Stopping distress signal")
-        self.stm.send("safe")
-        self.mqtt_client.publish("escooter/distress", "stopped")
-
+        self._logger.warning("Sending distress signal")
+        self.mqtt_client.abort_session(cause="distress")
+        self.controller.lock()

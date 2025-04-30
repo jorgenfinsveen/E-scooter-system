@@ -238,10 +238,10 @@ async def scooter_lock_single(
 
     rental = resp[2]
 
-    logger.debug(f"Start_time: {rental['start_time']}")
+    #logger.debug(f"Start_time: {rental['start_time']}")
 
-    start_time = rental["start_time"].strftime("%H:%M:%S")
-    logger.debug(f"Start_time: {rental['start_time']}")
+    #start_time = rental["start_time"].strftime("%H:%M:%S")
+    #logger.debug(f"Start_time: {rental['start_time']}")
 
     #rental["start_time"] = rental["start_time"].strftime("%H:%M:%S")
     #rental["end_time"] = rental["end_time"].strftime("%H:%M:%S")

@@ -2,7 +2,10 @@ import os
 import logging
 import asyncio
 import time
+import socket
+import subprocess
 import uvicorn
+import argparse
 from pathlib import Path
 from api.http import *
 from api.mqtt import *
@@ -13,7 +16,8 @@ from colorlog import ColoredFormatter
 
 
 DEPLOYMENT_MODE = os.getenv('DEPLOYMENT_MODE', 'TEST')
-ENV = ".env.prod" if DEPLOYMENT_MODE == 'PROD' else ".env.test"
+#ENV = ".env.prod" if DEPLOYMENT_MODE == 'PROD' else ".env.test"
+ENV = ".env.test"
 ENV_PATH = Path(__file__).resolve().parent / ENV
 load_dotenv(ENV_PATH)
 
@@ -29,6 +33,8 @@ MQTT_PORT = None
 MQTT_TOPIC_INPUT  = None
 MQTT_TOPIC_OUTPUT = None
 
+parser = argparse.ArgumentParser(description="Start e-scooter client.")
+parser.add_argument("--host", type=str, default="cm5.local", help="Server host (default: cm5.local)")
 
 
 # Database configuration
@@ -135,7 +141,7 @@ def test_db(db):
         for key, value in scooter.items():
             logger.debug(f"\t{key}: {value}")
 
-
+            
 
 def start_db_client():
     """
@@ -172,6 +178,11 @@ def setup_logging():
     return logger
 
 
+def get_host_ip():
+    args = parser.parse_args()
+    return args.host
+
+
 if __name__ == "__main__":
     """
     Main function and entry point to start the application.
@@ -181,6 +192,8 @@ if __name__ == "__main__":
     global mqtt_thread
     global http_thread
     global db_thread
+
+    ip_address = get_host_ip()
     logger = setup_logging()
 
     logger.info(f"Starting {APP_NAME}")
@@ -189,16 +202,18 @@ if __name__ == "__main__":
     logger.warning(f"App version: \t{APP_VERSION}")
     logger.warning(f"Deployment mode: \t{DEPLOYMENT_MODE}\n")
 
-    logger.info(f"Launching HTTP Server: \t0.0.0.0:{HTTP_PORT}")
+    logger.info(f"Launching HTTP Server: \t{ip_address}:{HTTP_PORT}")
     http_thread = Thread(target=start_http_server)
     http_thread.start()
 
     
-    logger.info(f"Launching MQTT Server: \t{MQTT_HOST}:{MQTT_PORT}")
+    logger.info(f"Launching MQTT Server: \t{ip_address}:{MQTT_PORT}")
     mqtt_thread = Thread(target=start_mqtt_client)
     mqtt_thread.start()
 
     logger.info(f"Connecting to DB: \t\t{DB_CONFIG['host']}:{DB_CONFIG['port']}\n")
     db_thread = Thread(target=start_db_client)
     db_thread.start()
+    
+
     
