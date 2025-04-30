@@ -69,8 +69,8 @@ class MQTTClient:
             "status": 0,
             "timestamp": time.time(),
             "location": {
-                "latitude": 0.0,
-                "longitude": 0.0
+                "latitude":  63.4197,
+                "longitude": 10.4018
             }
         }
         return response
@@ -82,3 +82,26 @@ class MQTTClient:
         self.client.subscribe(topic)
         self.client.on_message = self.on_message
         self.client.loop_start()
+
+    def abort_session(self, cause="unknown"):
+        if cause == "weather":
+            status = 2
+        elif cause == "distress":
+            status = 4
+        else:
+            status = 7
+        
+        message = {
+            "id": self._server_id,
+            "uuid": self._scooter_id,
+            "battery": 100,
+            "status": status,
+            "timestamp": time.time(),
+            "location": {
+                "latitude":  63.4197,
+                "longitude": 10.4018
+            }
+        }
+
+        self.publish(f"escooter/response/{self._scooter_id}", message)
+        

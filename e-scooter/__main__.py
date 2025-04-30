@@ -51,9 +51,24 @@ def setup_logging():
     return logger
 
 
+
+def init_driver():
+    driver = ScooterDriver()
+    weather_lock   = WeatherLock()
+    crash_detector = CrashDetection()
+    weather_lock_stm   = Machine(transitions=getWeatherTransitions(), obj=weather_lock,   name='weather_lock')
+    crash_detector_stm = Machine(transitions=getCrashTransitions(),   obj=crash_detector, name='crash_detector')
+    weather_lock.stm   = weather_lock_stm
+    crash_detector.stm = crash_detector_stm
+    driver.add_machine(weather_lock_stm)
+    driver.add_machine(crash_detector_stm)
+
+    main_controller.setDriver(driver)
+
+
+
 if __name__ == "__main__":
     logger = setup_logging()
-
     logger.info(f"Starting scooter with id: {SCOOTER_ID}")
 
     main_controller = MainController(SCOOTER_ID)
@@ -66,31 +81,8 @@ if __name__ == "__main__":
 
     main_controller.set_mqtt_client(mqtt_client)
 
-
-    driver = ScooterDriver()
-
-    crash_detector = CrashDetection()
-    crash_detector_stm = Machine(transitions=getCrashTransitions(), obj=crash_detector, name='crash_detector')
-    crash_detector.stm = crash_detector_stm
-    driver.add_machine(crash_detector_stm)
-
-
-    weather_lock = WeatherLock()
-    weather_lock_stm = Machine(transitions=getWeatherTransitions(), obj=weather_lock, name='weather_lock')
-    weather_lock.stm = weather_lock_stm
-    driver.add_machine(weather_lock_stm)
-
+    init_driver()
 
     senseHat = SenseHAT()
-    main_controller.setDriver(driver)
     main_controller.setSense(senseHat)
     senseHat.set_controller(main_controller)
-
-
-
-
-"""
-driver = Driver()
-driver.add_machine(machine)
-driver.start()
-"""
