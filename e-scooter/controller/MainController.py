@@ -37,12 +37,19 @@ arrow_right = [pixel for row in arrow_right for pixel in row]
 @singleton
 class MainController:
 
-    def __init__(self):
-        self.mqtt_client = MQTTClient()
+    def __init__(self, scooter_id: int):
+        self.scooter_id = scooter_id
+        self.mqtt_client = None
         self.driver = None
         self.sense_controller = None
         self.middle_pressed_count = 0
         self.locked = True
+
+    def set_mqtt_client(self, mqtt_client):
+        self.mqtt_client = mqtt_client
+
+    def get_scooter_id(self):
+        return self.scooter_id
 
     def setDriver(self, driver):
         self.driver = driver

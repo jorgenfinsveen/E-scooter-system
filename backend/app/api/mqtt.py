@@ -153,8 +153,9 @@ class mqtt_client:
         Args:
             message (dict): The message to send.
         """
-        self._client.publish(self.output_topic, json.dumps(message))
-        self._logger.info(f"At {self.output_topic} - published message: {message}")
+        topic = f"{self.output_topic}/{message['uuid']}"
+        self._client.publish(topic, json.dumps(message))
+        self._logger.info(f"At {topic} - published message: {message}")
 
 
 
@@ -212,11 +213,11 @@ class mqtt_client:
 
         if response:
             try:
-                if self._message['_id'] == self._id and self._message['uuid'] == scooter['uuid']:
+                if self._message['id'] == self._id and self._message['uuid'] == scooter['uuid']:
                     battery   = int(self._message['battery'])
                     status    = int(self._message['status'])
-                    location  = str(self._message['location'])
-                    timestamp = self._message['timestamp']
+                    # location  = str(self._message['location'])
+                    # timestamp = self._message['timestamp']
 
                     if battery > 15 and status == 0:
                         return True, status, ""

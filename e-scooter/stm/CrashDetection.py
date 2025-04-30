@@ -1,5 +1,6 @@
-from stmpy import Machine, Driver
+import logging
 from api.mqtt import MQTTClient
+from controller.MainController import MainController
 
 
 t0 = {
@@ -42,25 +43,31 @@ def getCrashTransitions():
 
 class CrashDetection:
     def __init__(self):
+        self._logger = logging.getLogger(__name__)
         self.stm = None
         self.mqtt_client = MQTTClient()
+        self.controller = MainController()
 
     def alarm_on(self):
-        print("Alarm activated")
-        self.mqtt_client.publish("escooter/alarm", "on")
+        self._logger.warning("Alarm activated")
+        topic = f"escooter/{self.controller.get_scooter_id()}"
+        self.mqtt_client.publish(topic, "crash_detection_alarm_on")
 
 
     def alarm_off(self):
-        print("Alarm deactivated")
-        self.mqtt_client.publish("escooter/alarm", "off")
+        self._logger.info("Alarm deactivated")
+        topic = f"escooter/{self.controller.get_scooter_id()}"
+        self.mqtt_client.publish(topic, "crash_detection_alarm_off")
 
     def send_distress(self):
-        print("Sending distress signal")
+        self._logger.warning("Sending distress signal")
         self.stm.send("crash")
-        self.mqtt_client.publish("escooter/distress", "sent")
+        topic = f"escooter/{self.controller.get_scooter_id()}"
+        self.mqtt_client.publish(topic, "distress_signal_sent")
 
     def stop_distress(self):
-        print("Stopping distress signal")
+        self._logger.info("Stopping distress signal")
         self.stm.send("safe")
-        self.mqtt_client.publish("escooter/distress", "stopped")
+        topic = f"escooter/{self.controller.get_scooter_id()}"
+        self.mqtt_client.publish(topic, "distress_signal_stopped")
 

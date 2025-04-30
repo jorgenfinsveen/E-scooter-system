@@ -1,3 +1,4 @@
+import logging
 from sense_hat import SenseHat, ACTION_PRESSED, ACTION_HELD, ACTION_RELEASED
 import time
 from threading import Thread
@@ -8,6 +9,7 @@ from threading import Thread
 class SenseHAT:
 
     def __init__(self):
+        self._logger = logging.getLogger(__name__)
         self.sense_hat = SenseHat()
         self.controller = None
         self.first_login = True
@@ -18,28 +20,26 @@ class SenseHAT:
     def set_controller(self, controller):
         self.controller = controller
         self.input_thread.start()
-        self.temperature_thread = Thread(target=self.checkTemperature)
-        self.temperature_thread.start()
 
     
     def readEvent(self):
         try:
             while True:
                 for event in self.sense_hat.stick.get_events():
-                    print(f"Retning: {event.direction}, Handling: {event.action}")
+                    self._logger.debug(f"Retning: {event.direction}, Handling: {event.action}")
                     self.controller.newInputEvent(event)
                 time.sleep(0.1)
         except KeyboardInterrupt:
-            print("Avslutter")
+            self._logger.debug("Avslutter")
             self.sense_hat.clear()
 
     def checkTemperature(self):
         try:
-            while True:
+            while self._readTemperature:
                 temperature = self.sense_hat.get_temperature()
-                print(f"Temperatur: {temperature:.2f}°C")
+                self._logger.debug(f"Temperatur: {temperature:.2f}°C")
                 if temperature < 2:
-                    print("Temperature is below 2°C. ")
+                    self._logger.debug("Temperature is below 2°C. ")
                     self.controller.sendTemperature()
                     self.lock_escooter()
 
@@ -49,7 +49,7 @@ class SenseHAT:
                     self.first_login = False
                 time.sleep(3) 
         except KeyboardInterrupt:
-            print("Avslutter temperaturkontroll")
+            self._logger.debug("Avslutter temperaturkontroll")
 
     def sos(self):
         for i in range(3):
@@ -60,10 +60,15 @@ class SenseHAT:
             self.sense_hat.show_message("SAFE", scroll_speed=0.1, text_colour=[0,255,0], back_colour = [0,0,0])
 
     def unlock_escooter(self):
-        self.sense_hat.show_message("UNLOCK", scroll_speed=0.1, text_colour=[0, 255, 0], back_colour=[0, 0, 0])
+        self.sense_hat.show_message("UNLOCK", scroll_speed=0.1, text_colour=[0, 255, 0], back_colour=[0, 0, 0])  
+        self._readTemperature = True
+        self.temperature_thread = Thread(target=self.checkTemperature)
+        self.temperature_thread.start()
 
     def lock_escooter(self):
         self.sense_hat.show_message("LOCK", scroll_speed=0.1, text_colour=[255, 0, 0], back_colour=[0, 0, 0])
+        self._readTemperature = False
+        self.temperature_thread.join()
     
   
 """   

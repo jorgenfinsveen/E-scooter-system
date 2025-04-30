@@ -1,4 +1,5 @@
-import sys
+import logging
+import argparse
 from api.mqtt import MQTTClient
 from stm.Driver import Driver
 from stm.CrashDetection import CrashDetection, getCrashTransitions
@@ -6,26 +7,65 @@ from stm.WeatherLock import WeatherLock, getWeatherTransitions
 from stmpy import Machine
 from controller.MainController import MainController
 from controller.SenseHAT import SenseHAT
+from colorlog import ColoredFormatter 
 
+parser = argparse.ArgumentParser(description="Start e-scooter client.")
+parser.add_argument("--id",   type=int, default=1,             help="Scooter ID (must be positive integer)")
+parser.add_argument("--host", type=str, default="10.22.51.44", help="MQTT broker host (default: 10.22.51.44)")
+parser.add_argument("--port", type=int, default=1885,          help="MQTT broker port (default: 1885)")
+args = parser.parse_args()
 
-
-
-if len(sys.argv) < 2:
-    print("Please provide a parameter.")
-    print("Usage: python3 -m e-scooter <param>")
+if args.id <= 0:
+    print("Error: Scooter ID must be a positive integer.")
     exit(1)
 
-param = sys.argv[1]
+HOST = args.host
+PORT = args.port
+SCOOTER_ID = args.id
+LOGGER_LEVEL = logging.DEBUG
+MQTT_INPUT_TOPIC = f"escooter/command/{SCOOTER_ID}"
+MQTT_OUTPUT_TOPIC = f"escooter/response/{SCOOTER_ID}"
+
+
+formatter = ColoredFormatter(
+    "%(log_color)s[%(asctime)s] [%(levelname)s] [%(filename)s:%(lineno)d in %(funcName)s()] %(message)s",
+    datefmt="%H:%M:%S",
+    log_colors={
+        'DEBUG':    'green',
+        'INFO':     'cyan',
+        'WARNING':  'yellow',
+        'ERROR':    'red',
+        'CRITICAL': 'bold_red',
+    }
+)
+
+
+def setup_logging():
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    logger = logging.getLogger()
+
+    logger.setLevel(LOGGER_LEVEL)
+    logger.addHandler(handler)
+    
+    return logger
 
 
 if __name__ == "__main__":
+    logger = setup_logging()
 
-    main_controller = MainController()
+    logger.info(f"Starting scooter with id: {SCOOTER_ID}")
 
-    HOST = "10.22.51.44"
-    PORT = 1885
+    main_controller = MainController(SCOOTER_ID)
 
+    logger.info(f"MQTT:")
+    logger.info(f"\tHost:\t {HOST}:{PORT}")
     mqtt_client = MQTTClient(host=HOST, port=PORT, controller=main_controller)
+    mqtt_client = mqtt_client.subscribe(MQTT_INPUT_TOPIC)
+    logger.info(f"\tConnected:\t {mqtt_client.is_connected()}")
+
+    main_controller.set_mqtt_client(mqtt_client)
+
 
     driver = Driver()
 

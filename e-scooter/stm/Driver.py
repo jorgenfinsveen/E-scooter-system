@@ -1,3 +1,4 @@
+import logging
 from stmpy import Machine, Driver
 
 
@@ -8,6 +9,7 @@ class Driver:
     """
     def __init__(self):
         self.machines = []
+        self._logger = logging.getLogger(__name__)
 
     def add_machine(self, machine):
         self.machines.append(machine)
@@ -21,4 +23,4 @@ class Driver:
             machine.stop()
 
     def send(self, message, state_machine):
-        print(f"{state_machine}: {message}")
+        self._logger.debug(f"{state_machine}: {message}")

@@ -1,3 +1,4 @@
+import logging
 from api.mqtt import MQTTClient
 from controller.MainController import MainController
 
@@ -33,19 +34,22 @@ def getWeatherTransitions():
 
 class WeatherLock:
     def __init__(self):
+        self._logger = logging.getLogger(__name__)
         self.stm = None
         self.mqtt_client = MQTTClient()
         self.controller = MainController()
 
 
     def unlock(self):
-        print("Unlocking the scooter")
-        self.mqtt_client.publish("escooter/status", "unlocked")
+        self._logger.info("Unlocking the scooter")
+        topic = f"escooter/{self.controller.get_scooter_id()}"
+        self.mqtt_client.publish(topic, "unlocked")
         self.controller.unlock()
 
     def lock(self):
-        print("Locking the scooter")
-        self.mqtt_client.publish("escooter/status", "locked")
+        self._logger.info("Locking the scooter")
+        topic = f"escooter/{self.controller.get_scooter_id()}"
+        self.mqtt_client.publish(topic, "locked")
         self.controller.lock()
 
     
