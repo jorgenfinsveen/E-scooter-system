@@ -1,4 +1,3 @@
-from tools.init import init_driver
 from tools.singleton import singleton
 
 
@@ -87,7 +86,9 @@ class MainController:
         self.controller_sense_hat.set_pixels(dott_green)
         self.locked = False
         if not self._first_unlock:
-            self.setDriver(init_driver())
+            from tools.initializer import Initializer
+            initializer = Initializer(self)
+            initializer.init_driver()
             self._first_unlock = False
         self.driver.start()
 

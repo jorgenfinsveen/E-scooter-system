@@ -1,7 +1,7 @@
 import logging
 import argparse
 from api.mqtt import MQTTClient
-from tools.init import init_driver
+from tools.initializer import Initializer
 from controller.MainController import MainController
 from controller.SenseHAT import SenseHAT
 from colorlog import ColoredFormatter 
@@ -50,6 +50,7 @@ if __name__ == "__main__":
     logger.info(f"Starting scooter with id: {SCOOTER_ID}")
 
     main_controller = MainController(SCOOTER_ID)
+    initializer     = Initializer(main_controller)
 
     logger.info(f"MQTT:")
     logger.info(f"\tHost:\t {HOST}:{PORT}")
@@ -58,7 +59,7 @@ if __name__ == "__main__":
     logger.info(f"\tConnected:\t {mqtt_client.is_connected()}")
 
     main_controller.set_mqtt_client(mqtt_client)
-    main_controller.setDriver(init_driver()) 
+    initializer.init_driver() 
 
     senseHat = SenseHAT()
     main_controller.setSense(senseHat)
