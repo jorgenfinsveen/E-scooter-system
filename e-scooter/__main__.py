@@ -11,7 +11,7 @@ from colorlog import ColoredFormatter
 
 parser = argparse.ArgumentParser(description="Start e-scooter client.")
 parser.add_argument("--id",   type=int, default=1,             help="Scooter ID (must be positive integer)")
-parser.add_argument("--host", type=str, default="10.22.49.66", help="MQTT broker host (default: 10.22.49.66)")
+parser.add_argument("--host", type=str, default="192.168.10.247", help="MQTT broker host (default: 192.168.10.247)")
 parser.add_argument("--port", type=int, default=1885,          help="MQTT broker port (default: 1885)")
 args = parser.parse_args()
 
@@ -19,8 +19,8 @@ if args.id <= 0:
     print("Error: Scooter ID must be a positive integer.")
     exit(1)
 
-HOST = args.host
-PORT = args.port
+HOST = str(args.host)
+PORT = int(args.port)
 SCOOTER_ID = args.id
 LOGGER_LEVEL = logging.DEBUG
 MQTT_INPUT_TOPIC = f"escooter/command/{SCOOTER_ID}"
