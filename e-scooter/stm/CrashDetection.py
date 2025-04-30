@@ -50,24 +50,24 @@ class CrashDetection:
 
     def alarm_on(self):
         self._logger.warning("Alarm activated")
-        topic = f"escooter/{self.controller.get_scooter_id()}"
-        self.mqtt_client.publish(topic, "crash_detection_alarm_on")
+        topic = f"escooter/response/{self.controller.get_scooter_id()}"
+        self.mqtt_client.publish(topic, {"message": "crash_detection_alarm_on"})
 
 
     def alarm_off(self):
         self._logger.info("Alarm deactivated")
-        topic = f"escooter/{self.controller.get_scooter_id()}"
-        self.mqtt_client.publish(topic, "crash_detection_alarm_off")
+        topic = f"escooter/response/{self.controller.get_scooter_id()}"
+        self.mqtt_client.publish(topic, {"message": "crash_detection_alarm_off"})
 
     def send_distress(self):
         self._logger.warning("Sending distress signal")
         self.stm.send("crash")
-        topic = f"escooter/{self.controller.get_scooter_id()}"
-        self.mqtt_client.publish(topic, "distress_signal_sent")
+        topic = f"escooter/response/{self.controller.get_scooter_id()}"
+        self.mqtt_client.publish(topic, {"message": "distress_signal_sent"})
 
     def stop_distress(self):
         self._logger.info("Stopping distress signal")
         self.stm.send("safe")
-        topic = f"escooter/{self.controller.get_scooter_id()}"
-        self.mqtt_client.publish(topic, "distress_signal_stopped")
+        topic = f"escooter/response/{self.controller.get_scooter_id()}"
+        self.mqtt_client.publish(topic, {"message": "distress_signal_stopped"})
 

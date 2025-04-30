@@ -51,11 +51,11 @@ class MQTTClient:
         if self._command == "unlock":
             self.controller.unlock()
             response = self._build_response()
-            self.publish(f"escooter/response/{self._scooter_id}", json.dumps(response))
+            self.publish(f"escooter/response/{self._scooter_id}", response)
         elif self._command == "lock":
             self.controller.lock()
             response = self._build_response()
-            self.publish(f"escooter/response/{self._scooter_id}", json.dumps(response))
+            self.publish(f"escooter/response/{self._scooter_id}", response)
         else:
             self._logger.error("Unknown command received:", self._command)
         
@@ -75,7 +75,7 @@ class MQTTClient:
         return response
         
     def publish(self, topic, message):
-        self.client.publish(topic, message) 
+        self.client.publish(topic, json.dumps(message)) 
 
     def subscribe(self, topic):
         self.client.subscribe(topic)

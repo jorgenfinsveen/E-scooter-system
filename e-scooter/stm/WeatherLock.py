@@ -42,14 +42,14 @@ class WeatherLock:
 
     def unlock(self):
         self._logger.info("Unlocking the scooter")
-        topic = f"escooter/{self.controller.get_scooter_id()}"
-        self.mqtt_client.publish(topic, "unlocked")
+        topic = f"escooter/command/{self.controller.get_scooter_id()}"
+        #self.mqtt_client.publish(topic, "unlocked")
         self.controller.unlock()
 
     def lock(self):
         self._logger.info("Locking the scooter")
-        topic = f"escooter/{self.controller.get_scooter_id()}"
-        self.mqtt_client.publish(topic, "locked")
+        topic = f"escooter/command/{self.controller.get_scooter_id()}"
+        #self.mqtt_client.publish(topic, "locked")
         self.controller.lock()
 
     

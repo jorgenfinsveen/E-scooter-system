@@ -11,7 +11,7 @@ from colorlog import ColoredFormatter
 
 parser = argparse.ArgumentParser(description="Start e-scooter client.")
 parser.add_argument("--id",   type=int, default=1,             help="Scooter ID (must be positive integer)")
-parser.add_argument("--host", type=str, default="10.22.51.44", help="MQTT broker host (default: 10.22.51.44)")
+parser.add_argument("--host", type=str, default="10.22.49.66", help="MQTT broker host (default: 10.22.49.66)")
 parser.add_argument("--port", type=int, default=1885,          help="MQTT broker port (default: 1885)")
 args = parser.parse_args()
 
