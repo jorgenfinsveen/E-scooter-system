@@ -11,6 +11,8 @@ from controller.SenseHAT import SenseHAT
 
 
 if len(sys.argv) < 2:
+    print("Please provide a parameter.")
+    print("Usage: python3 -m e-scooter <param>")
     exit(1)
 
 param = sys.argv[1]
@@ -20,8 +22,8 @@ if __name__ == "__main__":
 
     main_controller = MainController()
 
-    HOST = "127.0.0.1"
-    PORT = 1883
+    HOST = "10.22.51.44"
+    PORT = 1885
 
     mqtt_client = MQTTClient(host=HOST, port=PORT, controller=main_controller)
 
