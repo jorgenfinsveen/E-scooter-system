@@ -203,6 +203,24 @@ class db:
     
 
 
+    def get_active_rental_by_scooter(self: object, scooter_id: int) -> tuple[int, int, str, bool, str, str, float]:
+        """
+        Get active rental instance from the database by scooter ID.
+        Args:
+            scooter_id (int): The ID of the scooter to retrieve. (Primary key in the database)
+        Returns:
+            tuple: A tuple containing rental information.
+        Example:
+            ```python
+            db.get_active_rental_by_scooter(1) -> (5, 1, 3, True, "2023-10-01 12:00:00", None, 0.0)
+            ```
+        """
+        query = "SELECT * FROM rentals WHERE scooter_id = %s AND is_active = 1"
+        self._cursor.execute(query, (scooter_id,))
+        return self._cursor.fetchone()
+    
+    
+
     def rental_started(self:object, user_id: int, scooter_id: int) -> bool:
         """
         Start a rental for a user and scooter. Creates a new instance in db.rentals.
@@ -276,6 +294,8 @@ class db:
         except mysql.connector.Error as e:
             self._logger.error(f"Error updating scooter info: {e}")
             return False
+
+
 
     def _update_scooter_info(self: object, scooter_id: int, lat: float, lon: float, status: int) -> bool:
         """

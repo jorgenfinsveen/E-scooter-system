@@ -9,9 +9,11 @@ const ActiveRental = () => {
     const navigate = useNavigate();
 
     const { scooter_id } = useParams<{ scooter_id: string }>();
-    const [ seconds, setSeconds ] = useState<number>(0);
+
+    const [ seconds,   setSeconds ] = useState<number>(0);
     const [ userName, setUserName ] = useState<string>('');
-    const [ userId, setUserId ] = useState<string>('');
+    const [ userId,   setUserId ]   = useState<string>('');
+    const [ rentalId, setRentalId ] = useState<string>('');
 
     const scooter_id_num = parseInt(scooter_id || '0', 10);
     
@@ -39,6 +41,11 @@ const ActiveRental = () => {
                     console.error('Error:', error);
                 }
             });
+
+        fetch(`${apiUrl}rental?user_id=${userId}`)
+            .then((response) => response.json())
+            .then((res) => setRentalId(res.message.id))
+            .catch((error) => console.error('Error:', error));
     
         return () => controller.abort(); 
     }, [userId]);
@@ -51,6 +58,21 @@ const ActiveRental = () => {
 
         return () => clearInterval(timer);
     }, []);
+
+
+    useEffect(() => {
+        setTimeout(() => {
+            fetch(`${apiUrl}rental/${rentalId}`)
+                .then((response) => response.json())
+                .then((res) => {
+                    const redirect = res.message.redirect;
+                    if (redirect === '') {
+                        navigate(`/abort/${redirect}/${rentalId}/${userId}`);
+                    }
+                })
+                .catch((error) => console.error('Error:', error));
+        });
+    }, [rentalId]);
 
 
     const handleButton = async () => {

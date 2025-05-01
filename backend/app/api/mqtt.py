@@ -6,6 +6,8 @@ import logging
 from threading import Event
 import paho.mqtt.client as mqtt
 from tools.singleton import singleton
+from service.internal_service import internal_service
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCOOTER_STATUS_CODES_PATH = os.path.join(BASE_DIR, "resources/scooter-status-codes.json")
@@ -68,8 +70,9 @@ class mqtt_client:
         self._status = 'disconnected'
         self._response_event = Event()
         self._client = self._init_client(host, port, topics)
-        self.input_topic = topics["input"]
+        self.input_topic  = topics["input"]
         self.output_topic = topics["output"]
+        self._internal_service = internal_service()
         self._message = None
         with open(SCOOTER_STATUS_CODES_PATH, 'r') as f:
             self._status_codes = json.load(f)
@@ -127,8 +130,12 @@ class mqtt_client:
         payload_str = msg.payload.decode()
         message = json.loads(payload_str)
         self._logger.info(f"At {self.input_topic} - received message: {message}")
-        self._message = message
-        self._response_event.set()
+
+        if message["abort"] == True:
+            self._internal_service.session_aborted(message["uuid"], message)
+        else:
+            self._message = message
+            self._response_event.set()
 
 
 

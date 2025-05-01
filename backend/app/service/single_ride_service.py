@@ -62,6 +62,48 @@ class single_ride_service:
         return None if DISABLE_MQTT else mqtt.mqtt_client()
     
 
+
+
+    def get_active_rental_by_user(self, user_id: int) -> dict:
+        """
+        Get the active rental data from the database.
+        
+        Args:
+            user_id (int): The ID of the user to get the rental for.
+        
+        Returns:
+            dict: The active rental data from the database.
+
+        Example:
+        ```python
+            rental = self.get_active_rental_by_user(user_id)
+            print(rental) -> {
+                "rental_id": 4,
+                "user_id": 1,
+                "scooter_id": 7,
+                "active": True,
+                "start_time": datetime('2025-03-31 11:25:29'),
+                "end_time": time.time(),
+                "price": 65.4
+            }
+        ```
+        """
+        self._db.ensure_connection()
+
+        _rental = self._db.get_active_rental_by_user(user_id)
+
+        if _rental is None:
+            self._warn_logger(
+                title="get active rental failed",
+                culprit="database",
+                user_id=user_id,
+                message="rental error: rental not found",
+                function=f"get_active_rental_by_user({user_id})"
+            )
+            return None
+        else:
+            return _rental
+
     def get_rental_info(self, rental_id: int) -> dict:
         """
         Get the rental data from the database.
@@ -103,7 +145,49 @@ class single_ride_service:
             return _rental
     
 
-    def get_user_info(self, user_id: int) -> dict:
+
+    def get_active_rental_by_user(self, user_id: int) -> dict:
+        """
+        Get the active rental data from the database.
+        
+        Args:
+            user_id (int): The ID of the user to get the rental for.
+        
+        Returns:
+            dict: The active rental data from the database.
+
+        Example:
+        ```python
+            rental = self.get_active_rental_by_user(user_id)
+            print(rental) -> {
+                "rental_id": 4,
+                "user_id": 1,
+                "scooter_id": 7,
+                "active": True,
+                "start_time": datetime('2025-03-31 11:25:29'),
+                "end_time": time.time(),
+                "price": 65.4
+            }
+        ```
+        """
+        self._db.ensure_connection()
+
+        _rental = self._db.get_active_rental_by_user(user_id)
+
+        if _rental is None:
+            self._warn_logger(
+                title="get active rental failed",
+                culprit="database",
+                user_id=user_id,
+                message="rental error: rental not found",
+                function=f"get_active_rental_by_user({user_id})"
+            )
+            return None
+        else:
+            return _rental
+        
+
+    def get_user_info(self, user_id: int) -> tuple[bool, str, str]:
         """
         Get the user data from the database.
         
@@ -127,7 +211,7 @@ class single_ride_service:
 
         _user = self._db.get_user(user_id)
 
-        if _user is None:
+        if _user is not None:
             self._warn_logger(
                 title="get user info failed",
                 culprit="database",
@@ -135,9 +219,17 @@ class single_ride_service:
                 message="user error: user not found",
                 function=f"get_user({user_id})"
             )
-            return None
-        else:
-            return self._parse_user(_user)
+            return True, "", ""
+        
+        user = self._parse_user(_user)
+
+        # Todo: Finn nyligste avsluttete rental
+        # Todo: Lagre tid, location og pris på rental
+        # Todo: Finn status kode og redirect deretter
+
+        return False, "", ""
+
+
     
 
 

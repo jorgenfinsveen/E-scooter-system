@@ -100,6 +100,9 @@ class MainController:
         self.locked = True
         self.driver.stop()
 
+    def is_locked(self):
+        return self.locked
+
     def request_temperature(self):
         temperature = self.controller_sense_hat.check_temperature()
         message = "temperature_valid" if temperature >= 2 else "temperature_invalid"
