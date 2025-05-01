@@ -187,7 +187,7 @@ class single_ride_service:
             return _rental
         
 
-    def get_user_info(self, user_id: int) -> tuple[bool, str, str]:
+    def get_user_info(self, user_id: int):
         """
         Get the user data from the database.
         
@@ -211,7 +211,7 @@ class single_ride_service:
 
         _user = self._db.get_user(user_id)
 
-        if _user is not None:
+        if _user is None:
             self._warn_logger(
                 title="get user info failed",
                 culprit="database",
@@ -219,7 +219,7 @@ class single_ride_service:
                 message="user error: user not found",
                 function=f"get_user({user_id})"
             )
-            return True, "", ""
+            return None
         
         user = self._parse_user(_user)
 
@@ -227,7 +227,7 @@ class single_ride_service:
         # Todo: Lagre tid, location og pris på rental
         # Todo: Finn status kode og redirect deretter
 
-        return False, "", ""
+        return user
 
 
     
@@ -349,7 +349,7 @@ class single_ride_service:
                 scooter_id=self.scooter["uuid"],
                 message=f"scooter error: {parse_code[0]}",
                 function=f"self._db.get_scooter({scooter_id})",
-                resp=f"status code: {self.scooter['costatusde']}",
+                resp=f"status code: {self.scooter['status']}",
             )
             return False, parse_code[0], parse_code[1]
 
