@@ -52,11 +52,11 @@ class internal_service:
             scooter_id (int): The ID of the scooter.
             payload (dict): The payload data from the scooter upon abort alert.
         """
-        self._logger.warning(f"Session aborted for scooter {scooter_id}: {self._status_codes[payload['status']]}")
+        self._logger.warning(f"Session aborted for scooter {scooter_id}: {self._status_codes[str(payload['status'])]}")
 
         rental = self._parse_rental(self._db.get_active_rental_by_scooter(scooter_id))
-        user   = self._parse_user(self._db.get_user_by_id(rental['user_id']))
-        self._handle_abort_cause(payload['status'], user, rental, scooter_id)
+        user   = self._parse_user(self._db.get_user(rental['user_id']))
+        self._handle_abort_cause(payload['status'], user, rental, scooter_id, payload['location']['latitude'], payload['location']['longitude'])
 
         time_s = rental['start_time'].timestamp()
         time_e = datetime.fromtimestamp(time.time()).timestamp()
@@ -74,15 +74,15 @@ class internal_service:
 
 
 
-    def _handle_abort_cause(self, status: int, user: dict, rental: dict, scooter: int) -> None:
+    def _handle_abort_cause(self, status: int, user: dict, rental: dict, scooter: int, lat: float, lon: float) -> None:
         if self._status_codes[str(status)] == "distress":
             self._logger.critical("Session aborted due to distress alert:")
             self._logger.critical(f"\tUser: {user['name']}")
             self._logger.critical(f"\tScooter: {scooter}")
             self._logger.critical(f"\tTime: {datetime.fromtimestamp(time.time())}")
             self._logger.critical(f"\tLocation:")
-            self._logger.critical(f"\t\tLatitude:  {rental['latitude']}")
-            self._logger.critical(f"\t\tLongitude: {rental['longitude']}")
+            self._logger.critical(f"\t\tLatitude:  {lat}")
+            self._logger.critical(f"\t\tLongitude: {lon}")
             self._logger.critical(f"Contacting emergency services...")
 
 
