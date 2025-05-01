@@ -14,10 +14,11 @@ const ActiveRental = () => {
     const [ userName, setUserName ] = useState<string>('');
     const [ userId,   setUserId ]   = useState<string>('');
     const [ rentalId, setRentalId ] = useState<string>('');
+    const [ active, setActive ]     = useState<boolean>(false);
 
     const scooter_id_num = parseInt(scooter_id || '0', 10);
     
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1/';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://192.168.10.247:8080/api/v1/';
 
     useEffect(() => {
         if (userId === '') {
@@ -44,11 +45,52 @@ const ActiveRental = () => {
 
         fetch(`${apiUrl}rental?user_id=${userId}`)
             .then((response) => response.json())
-            .then((res) => setRentalId(res.message.id))
+            .then((res) => {
+                console.log(res);
+                if (Array.isArray(res.message) && res.message.length > 0) {
+                    updateRentalId(res.message[0]);
+                } else {
+                    console.error('Unexpected response format:', res);
+                }
+            })
             .catch((error) => console.error('Error:', error));
     
         return () => controller.abort(); 
     }, [userId]);
+
+
+    const updateRentalId = (id: string) => {
+        console.log('Rental ID:', id);
+        setRentalId(id);
+
+        if (!active) {
+            setActive(true);
+
+            const intervalId = setInterval(() => {
+                fetch(`${apiUrl}rental/${id}`)
+                    .then((response) => response.json())
+                    .then((res) => {
+                        const redirect = res.message.redirect;
+                        console.log('message: ', res.message);
+
+                        if (redirect !== undefined && redirect !== null) {
+                            console.log('redirect: ', redirect);
+                            console.log('rentalId: ', id);
+                            console.log('userId: ', userId);
+
+                            clearInterval(intervalId); // Stop the interval before redirecting
+                            navigate(`/abort/${redirect}/${id}/${userId}`);
+                        } else {
+                            console.log('not redirect');
+                        }
+                    })
+                    .catch((error) => console.error('Error:', error));
+            }, 3000);
+
+            // Clear the interval when the component unmounts
+            return () => clearInterval(intervalId);
+        }
+    };
 
 
     useEffect(() => {
@@ -60,19 +102,6 @@ const ActiveRental = () => {
     }, []);
 
 
-    useEffect(() => {
-        setTimeout(() => {
-            fetch(`${apiUrl}rental/${rentalId}`)
-                .then((response) => response.json())
-                .then((res) => {
-                    const redirect = res.message.redirect;
-                    if (redirect === '') {
-                        navigate(`/abort/${redirect}/${rentalId}/${userId}`);
-                    }
-                })
-                .catch((error) => console.error('Error:', error));
-        });
-    }, [rentalId]);
 
 
     const handleButton = async () => {

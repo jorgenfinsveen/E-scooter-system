@@ -14,7 +14,7 @@ type Rental = {
 }
 
 export function AbortPage() {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1/';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://192.168.10.247:8080/api/v1/';
 
     const [ rental,    setRental ]    = useState<Rental | null>(null);
     const [ startTime, setStartTime ] = useState<string>('');
