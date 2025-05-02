@@ -67,13 +67,13 @@ const ActiveRental = () => {
             setActive(true);
 
             const intervalId = setInterval(() => {
-                fetch(`${apiUrl}rental/${id}`)
+                fetch(`${apiUrl}rental/ok/${id}`)
                     .then((response) => response.json())
                     .then((res) => {
-                        const redirect = res.message.redirect;
+                        const redirect = res.message[1];
                         console.log('message: ', res.message);
 
-                        if (redirect !== undefined && redirect !== null) {
+                        if (res.message[0] === false) {
                             console.log('redirect: ', redirect);
                             console.log('rentalId: ', id);
                             console.log('userId: ', userId);

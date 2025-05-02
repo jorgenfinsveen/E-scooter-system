@@ -145,6 +145,40 @@ class single_ride_service:
             return _rental
     
 
+    def check_rental_status(self, rental_id: int) -> tuple[bool, str]:
+        _rental = self._db.get_rental_by_id(rental_id)
+
+        if _rental is None:
+            self._warn_logger(
+                title="get rental info failed",
+                culprit="database",
+                user_id=rental_id,
+                message="rental error: rental not found",
+                function=f"get_rental_by_id({rental_id})"
+            )
+            return False, "scooter-inoperable"
+        
+        rental = self._parse_rental(_rental)
+        _scooter = self._db.get_scooter(rental['scooter_id'])
+
+        if _scooter is None:
+            self._warn_logger(
+                title="get scooter info failed",
+                culprit="database",
+                message="scooter error: scooter not found",
+                function=f"get_scooter({rental['scooter_id']})"
+            )
+            return False, "scooter-inoperable"
+        
+        scooter = self._parse_scooter(_scooter)
+
+        if scooter['status'] == 0:
+            return True, "ok"
+        else:
+            return False, self.parse_status(scooter['status'])[0]
+
+
+
 
     def get_active_rental_by_user(self, user_id: int) -> dict:
         """

@@ -298,6 +298,20 @@ async def get_rental_info(
         status_code=200
     )
 
+
+@api_router.get("/rental/ok/{rental_id}")
+async def is_rental_ok(
+    rental_id: str, 
+    request: Request,
+):
+    logger.debug("Request: HTTP GET /rental/ok/{rental_id}")
+    resp = request.app.state.single_ride_service.check_rental_status(rental_id)
+    return JSONResponse(
+        content=jsonable_encoder({"message": resp}),
+        status_code=200
+    )
+
+
 @api_router.get("/rental")
 async def get_active_rental(
     request: Request,
