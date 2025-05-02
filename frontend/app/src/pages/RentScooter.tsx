@@ -6,6 +6,7 @@ import { UserIdInput } from "../components/UserIdInput";
 import { UnlockButton } from "../components/UnlockButton";
 import { CoRideButton } from "../components/CoRideButton";
 
+// Defines the props for the scooter data
 type Scooter = {
   uuid: number;
   latitude: number;
@@ -35,6 +36,7 @@ const RentScooter = () => {
     }, [apiUrl, scooter_id_num]);
     */
 
+  // Fetch scooter data when the component mounts or scooter_id changes
   useEffect(() => {
     console.log("Fetching scooter data...");
 
@@ -58,12 +60,14 @@ const RentScooter = () => {
       });
   }, [apiUrl, scooter_id_num]);
 
+  // Handle input changes in the UserIdInput component
   const onInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const cleaned = event.target.value.replace(/[^0-9]/g, "");
     setUserId(cleaned);
 
+    // Enable the button if the input is valid
     if (cleaned.length > 0 && /^[1-9][0-9]*$/.test(cleaned)) {
       setActiveButton(true);
     } else {
@@ -71,6 +75,7 @@ const RentScooter = () => {
     }
   };
 
+  // Handle the unlock button click
   const handleButton = async () => {
     const resp = await fetch(
       `${apiUrl}scooter/${scooter_id_num}/single-unlock?user_id=${userId}`,
@@ -100,7 +105,9 @@ const RentScooter = () => {
 
   return (
     <>
+      {/* Page title */}
       <h1 className="page-title">Rent this Scooter</h1>
+      {/* Display the scooter's location on a map */}
       <div className="scooter-maps">
         {data ? (
           <Location lat={data.latitude} lon={data.longtitude} />
@@ -108,8 +115,13 @@ const RentScooter = () => {
           <p>Loading...</p>
         )}
       </div>
+      {/* Input field for the user ID */}
       <UserIdInput onInputChange={onInputChange} />
+
+      {/* Unlock button */}
       <UnlockButton activeButton={activeButton} handleButton={handleButton} />
+
+      {/* Co-Ride button */}
       <CoRideButton activeButton={activeButton} handleButton={handleButton} />
     </>
   );
