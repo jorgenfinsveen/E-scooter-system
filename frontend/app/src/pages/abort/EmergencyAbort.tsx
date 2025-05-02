@@ -4,7 +4,7 @@ const EmergencyAbort = () => {
 
     return (
         <>
-            <h1 className='page-title'>Ambulance is on the way.</h1>
+            <h1 className='page-title emergency'>Ambulance is on the way.</h1>
             <section 
                 className='ambulance-section'
                 style={{
@@ -16,10 +16,11 @@ const EmergencyAbort = () => {
                 <img
                     src={ambulance}
                     alt='Ambulance'
+                    className='ambulance-image'
                 />
             </section>
-            <p className='primary-paragraph'>
-                Stay where you are. 
+            <p className='primary-paragraph emergency' style={{ fontWeight: 'bolder' }}>
+                Stay where you are. <br/> <br/>
                 The emergency services has been informed of your whereabouts.
             </p>
         </>

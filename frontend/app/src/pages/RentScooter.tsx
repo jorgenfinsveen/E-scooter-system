@@ -25,16 +25,6 @@ const RentScooter = () => {
   const apiUrl =
     import.meta.env.VITE_API_URL || "http://192.168.10.247:8080/api/v1/";
 
-  /*
-    useEffect(() => {
-        console.log("Fetching scooter data...");
-        fetch(`${apiUrl}scooter/${scooter_id_num}`)
-          .then((response) => response.json())
-          .then((res) => {setData(res.message); console.log("Scooter data fetched:", res);}) 
-          .catch((error) => console.error('Error:', error))
-    }, [apiUrl, scooter_id_num]);
-    */
-
   useEffect(() => {
     console.log("Fetching scooter data...");
 
@@ -88,11 +78,6 @@ const RentScooter = () => {
       sessionStorage.setItem("user_id", userId);
       navigate(`/scooter/${scooter_id_num}/active`);
     } else {
-      // Todo: Legg til endringer her.
-
-      //console.error("Unlock failed: " + data.message);
-      //alert("Unlock failed");
-      //setActiveButton(false);
       const error_type = data.redirect;
       navigate(`/error/${error_type}`);
     }
@@ -109,8 +94,10 @@ const RentScooter = () => {
         )}
       </div>
       <UserIdInput onInputChange={onInputChange} />
-      <UnlockButton activeButton={activeButton} handleButton={handleButton} />
-      <CoRideButton activeButton={activeButton} handleButton={handleButton} />
+      <div className="button-section">
+        <UnlockButton activeButton={activeButton} handleButton={handleButton} />
+        <CoRideButton activeButton={activeButton} handleButton={handleButton} />
+      </div>
     </>
   );
 };

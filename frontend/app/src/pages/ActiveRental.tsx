@@ -3,6 +3,7 @@ import { Image } from '../components/Image'
 import { useParams } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom';
 import { LockButton } from '../components/LockButton'
+import scooter from '../assets/img/scooter.gif'
 
 const ActiveRental = () => {
 
@@ -138,10 +139,12 @@ const ActiveRental = () => {
                 {minutes.toString().padStart(2, '0')}:
                 {secs.toString().padStart(2, '0')}
             </p>
-            <Image src="/static/scooter.gif" />
+            <Image src={scooter} />
             <LockButton activeButton={true} handleButton={handleButton} />
         </>
     );
 }
 
 export default ActiveRental;
+
+// <Image src="/static/scooter.gif" />

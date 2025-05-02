@@ -30,6 +30,7 @@ export function AbortPage() {
     const { user_id }   = useParams<{ user_id: string }>();
 
     useEffect(() => {
+        console.log("redirect: ", redirect)
         if (rental) {
 
             const clock_start = startTime.split('T')[1].split(':');
@@ -87,7 +88,7 @@ export function AbortPage() {
 
     return (
         <>
-            { redirect === 'emergency' ? 
+            { redirect == 'distress' ? 
                 (
                     <EmergencyAbort />
                 ) : (
