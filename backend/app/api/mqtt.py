@@ -6,10 +6,26 @@ import logging
 from threading import Event
 import paho.mqtt.client as mqtt
 from tools.singleton import singleton
+from service.internal_service import internal_service
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCOOTER_STATUS_CODES_PATH = os.path.join(BASE_DIR, "resources/scooter-status-codes.json")
 DISABLE_MQTT    = os.getenv("DISABLE_MQTT", "False").lower() == "true"
+DEPLOYMENT_MODE = os.getenv('DEPLOYMENT_MODE', 'TEST')
+
+
+if DEPLOYMENT_MODE == 'PROD':
+    MQTT_HOST = os.getenv('MQTT_HOST_PROD', 'localhost')
+    MQTT_PORT = int(os.getenv('MQTT_PORT_PROD', 1883))
+    MQTT_TOPIC_INPUT  = os.getenv('MQTT_TOPIC_INPUT_PROD',  'ttm4115/team_16/request')
+    MQTT_TOPIC_OUTPUT = os.getenv('MQTT_TOPIC_OUTPUT_PROD', 'ttm4115/team_16/response')
+
+else:
+    MQTT_HOST = os.getenv('MQTT_HOST_TEST', 'localhost')
+    MQTT_PORT = int(os.getenv('MQTT_PORT_TEST', 1883))
+    MQTT_TOPIC_INPUT  = os.getenv('MQTT_TOPIC_INPUT_TEST',  'ttm4115/team_16/request')
+    MQTT_TOPIC_OUTPUT = os.getenv('MQTT_TOPIC_OUTPUT_TEST', 'ttm4115/team_16/response')
 
 
 @singleton
@@ -67,16 +83,17 @@ class mqtt_client:
         self._id = id
         self._status = 'disconnected'
         self._response_event = Event()
-        self._client = self._init_client(host, port, topics)
-        self.input_topic = topics["input"]
-        self.output_topic = topics["output"]
+        self.input_topic  = MQTT_TOPIC_INPUT
+        self.output_topic = MQTT_TOPIC_OUTPUT
+        self._client = self._init_client(MQTT_HOST, MQTT_PORT)
+        self._internal_service = internal_service()
         self._message = None
         with open(SCOOTER_STATUS_CODES_PATH, 'r') as f:
             self._status_codes = json.load(f)
 
 
 
-    def _init_client(self : object, host : str, port : int, topics : dict) -> mqtt.Client:
+    def _init_client(self : object, host : str, port : int) -> mqtt.Client:
         """
         Internal function to initialize the actual MQTT client object.
         Args:
@@ -89,7 +106,7 @@ class mqtt_client:
         try:
             self._client = mqtt.Client()
             self._client.connect(host, port)
-            self._client.subscribe(topics["input"])
+            self._client.subscribe(self.input_topic)
             self._client.on_connect = self.on_connect
             self._client.on_message = self.on_message
             self._client.loop_start()
@@ -127,8 +144,12 @@ class mqtt_client:
         payload_str = msg.payload.decode()
         message = json.loads(payload_str)
         self._logger.info(f"At {self.input_topic} - received message: {message}")
-        self._message = message
-        self._response_event.set()
+
+        if message["abort"] == True:
+            self._internal_service.session_aborted(message["uuid"], message)
+        else:
+            self._message = message
+            self._response_event.set()
 
 
 

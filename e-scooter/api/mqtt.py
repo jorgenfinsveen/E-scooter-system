@@ -56,7 +56,8 @@ class MQTTClient:
         elif self._command == "lock":
             response = self._build_response()
             self.publish(f"escooter/response/{self._scooter_id}", response)
-            self.controller.lock()
+            if not self.controller.is_locked():
+                self.controller.lock()
         else:
             self._logger.error("Unknown command received:", self._command)
         
@@ -67,6 +68,7 @@ class MQTTClient:
             "uuid": self._scooter_id,
             "battery": 100,
             "status": 0,
+            "abort": False,
             "timestamp": time.time(),
             "location": {
                 "latitude":  63.4197,
@@ -96,6 +98,7 @@ class MQTTClient:
             "uuid": self._scooter_id,
             "battery": 100,
             "status": status,
+            "abort": True,
             "timestamp": time.time(),
             "location": {
                 "latitude":  63.4197,

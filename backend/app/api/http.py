@@ -238,26 +238,6 @@ async def scooter_lock_single(
 
     rental = resp[2]
 
-    #logger.debug(f"Start_time: {rental['start_time']}")
-
-    #start_time = rental["start_time"].strftime("%H:%M:%S")
-    #logger.debug(f"Start_time: {rental['start_time']}")
-
-    #rental["start_time"] = rental["start_time"].strftime("%H:%M:%S")
-    #rental["end_time"] = rental["end_time"].strftime("%H:%M:%S")
-
-    """
-    send_rental = {
-        "rental_id": rental["rental_id"],
-        "start_time": datetime.fromtimestamp(rental["start_time"]),
-        "end_time": datetime.fromtimestamp(rental["end_time"]),
-        "price": rental["price"],
-        "user_id": rental["user_id"],
-        "scooter_id": rental["scooter_id"],
-        "active": rental["active"],
-    }
-    """
-
     return JSONResponse(
         content=jsonable_encoder({"message": rental}),
         status_code=status_code
@@ -313,8 +293,37 @@ async def get_rental_info(
 ):
     logger.debug("Request: HTTP GET /rental/{rental_id}")
     resp = request.app.state.single_ride_service.get_rental_info(rental_id)
-    return {"message": resp}
+    return JSONResponse(
+        content=jsonable_encoder({"message": resp}),
+        status_code=200
+    )
 
+
+@api_router.get("/rental/ok/{rental_id}")
+async def is_rental_ok(
+    rental_id: str, 
+    request: Request,
+):
+    logger.debug("Request: HTTP GET /rental/ok/{rental_id}")
+    resp = request.app.state.single_ride_service.check_rental_status(rental_id)
+    return JSONResponse(
+        content=jsonable_encoder({"message": resp}),
+        status_code=200
+    )
+
+
+@api_router.get("/rental")
+async def get_active_rental(
+    request: Request,
+    user_id: str = Query(..., description="ID of the user to check for active rental")
+):
+    logger.debug("Request: HTTP GET /rental?user_id={user_id}")
+    resp = request.app.state.single_ride_service.get_active_rental_by_user(user_id)
+    
+    return JSONResponse(
+        content=jsonable_encoder({"message": resp}),
+        status_code=200 if resp else 404
+    )
 
 app.include_router(api_router, prefix="/api/v1")
 

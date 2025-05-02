@@ -17,10 +17,7 @@ export function Image({ src, width, height }: ImageProps) {
       <img
         src={src}
         alt="Scooter"
-        style={{
-          width: width || "auto",
-          height: height || "auto",
-        }}
+        className="scooter-image"
       />
     </section>
   );
