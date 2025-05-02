@@ -51,10 +51,13 @@ The system is built using the component-philosophy, where the application consis
 * [__Mosquitto__](https://mosquitto.org): MQTT broker.
 * [__Nginx__](https://nginx.org): Web server.
 
+<br/><img src="/docs/deployment-diagram.png"/> <br/>
+
 All components are deployed in containers as specified in [docker-compose.yaml](/docker-compose.yaml), where the containers are mounted following the [Dockerfile](/backend/Dockerfile). The containers were deployed on a Raspberry Pi Compute Module 5, while the e-scooter software was deployed on a separate Raspberry Pi 4 equipped with a Sense HAT.
 
 ### Database
 The system stores data a MariaDB/MySQL database issued from an external service provider, [Loopia](https://www.loopia.no). Please refer to the [database schema](/docs/database-schema.png) for details regarding the design.
+<br/><br/> <img src="/docs/database-schema.png"/> <br/>
 
 ## Communication
 The system, being a communicative system, utilizes MQTT and  REST API (HTTP) for communication between components:
@@ -213,6 +216,8 @@ The statemachine is implemented in [__CrashDetection.py__](/e-scooter/stm/CrashD
 | awaiting-weather-report | idle                    | temperature >= 2 deg Celsius | start timer "t": 3 seconds                      |
 | awaiting-weather-report | locked                  | temperature < 2 deg Celsius  | lock scooter, send alert to back-end (status=2) |
 
+<br/><img src="/docs/weather_lock.png"/> <br/><br/><br/>
+
 ### CrashDetection 
 The statemachine is implemented in [__WeatherLock.py__](/e-scooter/stm/WeatherLock.py), and illustrated in [crash_detection.png](/docs/crash_detection.png). A brief description of states, transitions, triggers, and effects:
 | Source state   | Target state   | Trigger                                | Effect                                           |
@@ -222,6 +227,7 @@ The statemachine is implemented in [__WeatherLock.py__](/e-scooter/stm/WeatherLo
 | crash-detected | standby        | safe (SenseHAT joystick pressed twice) | stop timer "t", display SAFE message             |
 | crash-detected | distress       | timer "t"                              | lock scooter, send alert to back-end (status=4)  |
 
+<br/><img src="/docs/crash_detection.png"/> <br/><br/><br/>
 
 ## AI declatation
 Generative AI has been used for some aspects of the project. This includes comment generation, debugging, and code generation og the singleton annotation. The models used is primarily OpenAI's ChatGPT 4o. The group would like to emphasize that GenAI has not been used to generate functional parts of the software, and that the ideas and design choices are based on the intuition of the authors, not GenAI. For writing the vision document and system specification, OpenAI's ChatGPT 4o has been used to fix LaTeX-related syntax errors, not text-generation. AI have been used to some extent for spell-checking. No images has been produced using GenAI.
