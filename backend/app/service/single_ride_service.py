@@ -171,7 +171,7 @@ class single_ride_service:
             return False, "scooter-inoperable"
         
         scooter = self._parse_scooter(_scooter)
-
+        self._logger.info(f"scooter status: {scooter['status']}")
         if scooter['status'] == 0:
             return True, "ok"
         else:

@@ -97,6 +97,7 @@ class db:
         """
         try:
             self._conn = mysql.connector.connect(**credentials)
+            self._conn.autocommit = True
             self._cursor = self._conn.cursor()
             self._logger.info("Connected to the database")
         except mysql.connector.Error as e:
