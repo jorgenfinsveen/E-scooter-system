@@ -110,8 +110,8 @@ Upon a situation where the e-scooter needs to terminate an active session, it wi
 }
 ```
 __Situations where the e-scooter will terminate an active session__:
-1. If the [WeatherLock](/escooter/stm/WeatherLock.py] state machine receives the trigger ```temperature_invalid``` when in the state ```awaiting-weather-report```, the escooter is locked, and the status int is set to ```2```.
-2. If the [CrashDetection](/escooter/stm/CrashDetection.py) state machine receives the trigger ```t```when in the state ```crash_detected```, the escooter is locked, and the status in is set to ```4```.
+1. If the [WeatherLock](/e-scooter/stm/WeatherLock.py) state machine receives the trigger ```temperature_invalid``` when in the state ```awaiting-weather-report```, the escooter is locked, and the status int is set to ```2```.
+2. If the [CrashDetection](/e-scooter/stm/CrashDetection.py) state machine receives the trigger ```t```when in the state ```crash_detected```, the escooter is locked, and the status in is set to ```4```.
 
 ## Components
 The system is built using the component-philosophy, where the application consists of several independent modules:
@@ -201,7 +201,7 @@ The e-scooter uses a status-code which is used to represent the state of the e-s
 The status codes has been written down in JSON-format in the back-end, and can be found [here](/backend/app/resources).
 
 ## State machines
-The e-scooter software utilizes state machines using the [stmpy](https://falkr.github.io/stmpy/) library in Python. The state machines are implemented in [__CrashDetection.py__](/e-scooter/stm/CrashDetection.py) and [__WeatherLock.py__](/e-scooter/stm/WeatherLock.py). To see an illustration of the state machines, you may find these here: [weather_lock.png](/docs/weather_lock.png), [crash_detection](/docs/crash_detection.png). 
+The e-scooter software utilizes state machines using the [stmpy](https://falkr.github.io/stmpy/) library in Python.
 
 ### WeatherLock
 The statemachine is implemented in [__CrashDetection.py__](/e-scooter/stm/CrashDetection.py), and illustrated in [weather_lock.png](/docs/weather_lock.png). A brief description of states, transitions, triggers, and effects:
