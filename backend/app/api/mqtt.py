@@ -93,7 +93,7 @@ class mqtt_client:
 
 
 
-    def _init_client(self : object, host : str, port : int, topics : dict) -> mqtt.Client:
+    def _init_client(self : object, host : str, port : int) -> mqtt.Client:
         """
         Internal function to initialize the actual MQTT client object.
         Args:
