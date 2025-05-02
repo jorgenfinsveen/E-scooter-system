@@ -22,8 +22,8 @@ async def lifespan(app: FastAPI):
     set_single_ride_service()
     set_multi_ride_service()
 
-    logger.info("Initializing single ride service")
-    logger.info("Initializing multi ride service")
+    logger.debug("Initializing single ride service")
+    logger.debug("Initializing multi ride service")
     
     yield
 
