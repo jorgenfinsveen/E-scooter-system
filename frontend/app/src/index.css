@@ -32,6 +32,17 @@
   height: auto;
 }
 
+.ambulance-image {
+  width: 90vw;
+  height: auto;
+  border-radius: 3.0rem;
+}
+
+.scooter-image {
+  width: 90vw;
+  height: auto;
+}
+
 .page-title {
   font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-size: 3.2em;
@@ -58,6 +69,10 @@
   line-height: 0.7;
 }
 
+.emergency {
+  color: red;
+}
+
 .user-id-input-container {
   padding-top: 2vh;
   padding-bottom: 2rem;
@@ -70,6 +85,9 @@
   gap: 1rem;
 }
 
+.button-section {
+  margin-top: -2.5rem;
+}
 
 .button-container {
   font-size: 1.5rem;
@@ -79,7 +97,7 @@
   justify-content: center; /* vannrett sentrering */
   align-items: center;     /* loddrett sentrering hvis ønskelig */
   width: 100%;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
 }
 
 

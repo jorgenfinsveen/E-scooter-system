@@ -36,7 +36,6 @@ const RentScooter = () => {
     }, [apiUrl, scooter_id_num]);
     */
 
-  // Fetch scooter data when the component mounts or scooter_id changes
   useEffect(() => {
     console.log("Fetching scooter data...");
 
@@ -93,11 +92,6 @@ const RentScooter = () => {
       sessionStorage.setItem("user_id", userId);
       navigate(`/scooter/${scooter_id_num}/active`);
     } else {
-      // Todo: Legg til endringer her.
-
-      //console.error("Unlock failed: " + data.message);
-      //alert("Unlock failed");
-      //setActiveButton(false);
       const error_type = data.redirect;
       navigate(`/error/${error_type}`);
     }
@@ -117,12 +111,10 @@ const RentScooter = () => {
       </div>
       {/* Input field for the user ID */}
       <UserIdInput onInputChange={onInputChange} />
-
-      {/* Unlock button */}
-      <UnlockButton activeButton={activeButton} handleButton={handleButton} />
-
-      {/* Co-Ride button */}
-      <CoRideButton activeButton={activeButton} handleButton={handleButton} />
+      <div className="button-section">
+        <UnlockButton activeButton={activeButton} handleButton={handleButton} />
+        <CoRideButton activeButton={activeButton} handleButton={handleButton} />
+      </div>
     </>
   );
 };

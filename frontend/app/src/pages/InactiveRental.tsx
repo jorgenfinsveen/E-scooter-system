@@ -39,7 +39,7 @@ const InactiveRental = () => {
   const [balance, setBalance] = useState<number>(0);
 
   const apiUrl =
-    import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1/";
+    import.meta.env.VITE_API_URL || "http://192.168.10.247:8080/api/v1/";
 
   // Fetch user balance
   useEffect(() => {

@@ -3,6 +3,7 @@ import RentScooter from "./pages/RentScooter";
 import ActiveRental from "./pages/ActiveRental";
 import InactiveRental from "./pages/InactiveRental";
 import ErrorPage from "./pages/ErrorPage";
+import { AbortPage } from "./pages/AbortPage";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         element={<InactiveRental />}
       />
       <Route path="/error/:error_type" element={<ErrorPage />} />
+      <Route path="/abort/:redirect/:rental_id/:user_id" element={<AbortPage />} />
     </Routes>
   );
 }

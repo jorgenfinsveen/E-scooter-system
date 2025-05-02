@@ -3,6 +3,7 @@ import { Image } from "../components/Image";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { LockButton } from "../components/LockButton";
+import scooter from "../assets/img/scooter.gif";
 
 const ActiveRental = () => {
   const navigate = useNavigate(); //Hook to navigate to different routes
@@ -12,12 +13,19 @@ const ActiveRental = () => {
   const [userName, setUserName] = useState<string>(""); //State variable to store the user's name
   const [userId, setUserId] = useState<string>(""); //State variable to store the user's ID
 
-  const scooter_id_num = parseInt(scooter_id || "0", 10); //Convert scooter_id to a number
+  const { scooter_id } = useParams<{ scooter_id: string }>();
+
+  const [seconds, setSeconds] = useState<number>(0);
+  const [userName, setUserName] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
+  const [rentalId, setRentalId] = useState<string>("");
+  const [active, setActive] = useState<boolean>(false);
+
+  const scooter_id_num = parseInt(scooter_id || "0", 10);
 
   const apiUrl =
-    import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1/"; //API URL for fetching data
+    import.meta.env.VITE_API_URL || "http://192.168.10.247:8080/api/v1/";
 
-  // Fetch user information based on the user ID
   useEffect(() => {
     if (userId === "") {
       const storedId = sessionStorage.getItem("user_id");
@@ -27,12 +35,12 @@ const ActiveRental = () => {
       return;
     }
 
-    const controller = new AbortController(); // Controller to cancel the fetch request if needed
+    const controller = new AbortController();
     fetch(`${apiUrl}user/${userId}`, { signal: controller.signal })
       .then((response) => response.json())
       .then((res) => {
         if (res.message?.name) {
-          setUserName(res.message.name.split(" ")[0]); // Extract and set the user's first name
+          setUserName(res.message.name.split(" ")[0]);
         }
       })
       .catch((error) => {
@@ -41,10 +49,54 @@ const ActiveRental = () => {
         }
       });
 
+    fetch(`${apiUrl}rental?user_id=${userId}`)
+      .then((response) => response.json())
+      .then((res) => {
+        console.log(res);
+        if (Array.isArray(res.message) && res.message.length > 0) {
+          updateRentalId(res.message[0]);
+        } else {
+          console.error("Unexpected response format:", res);
+        }
+      })
+      .catch((error) => console.error("Error:", error));
+
     return () => controller.abort();
   }, [userId]);
 
-  // Timer to increment the elapsed time every second
+  const updateRentalId = (id: string) => {
+    console.log("Rental ID:", id);
+    setRentalId(id);
+
+    if (!active) {
+      setActive(true);
+
+      const intervalId = setInterval(() => {
+        fetch(`${apiUrl}rental/ok/${id}`)
+          .then((response) => response.json())
+          .then((res) => {
+            const redirect = res.message[1];
+            console.log("message: ", res.message);
+
+            if (res.message[0] === false) {
+              console.log("redirect: ", redirect);
+              console.log("rentalId: ", id);
+              console.log("userId: ", userId);
+
+              clearInterval(intervalId); // Stop the interval before redirecting
+              navigate(`/abort/${redirect}/${id}/${userId}`);
+            } else {
+              console.log("not redirect");
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      }, 3000);
+
+      // Clear the interval when the component unmounts
+      return () => clearInterval(intervalId);
+    }
+  };
+
   useEffect(() => {
     const timer = setInterval(() => {
       setSeconds((prevSeconds) => prevSeconds + 1);
@@ -53,7 +105,6 @@ const ActiveRental = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Handle the lock button click
   const handleButton = async () => {
     const resp = await fetch(
       `${apiUrl}scooter/${scooter_id_num}/single-lock?user_id=${userId}`,
@@ -84,23 +135,17 @@ const ActiveRental = () => {
 
   return (
     <>
-      {/* Display the page title with the user's name */}
       <h1 className="page-title">Enjoy the Ride, {userName}!</h1>
-
-      {/* Display the elapsed time */}
-
       <p className="primary-paragraph">
         Time: {hours.toString().padStart(2, "0")}:
         {minutes.toString().padStart(2, "0")}:{secs.toString().padStart(2, "0")}
       </p>
-
-      {/* Display an image of the scooter */}
-      <Image src="/static/scooter.gif" />
-
-      {/* Render the lock button */}
+      <Image src={scooter} />
       <LockButton activeButton={true} handleButton={handleButton} />
     </>
   );
 };
 
 export default ActiveRental;
+
+// <Image src="/static/scooter.gif" />
