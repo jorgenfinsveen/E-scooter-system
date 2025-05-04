@@ -1,8 +1,5 @@
 # Installation guide
 
-### Deployment diagram
-<img src="./img/deployment-diagram.png" alt="Deployment diagram">
-
 ### Contents
 | Architecture components     | Component name     | Deployment type     |
 |--------------|---------------|---------------|
