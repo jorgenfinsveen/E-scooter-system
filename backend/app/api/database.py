@@ -154,6 +154,7 @@ class db:
             db.get_user(1) -> (1, "Kari Normann", 125.0)
             ```
         """
+        self.ensure_connection()
         query = "SELECT * FROM users WHERE id = %s"
         self._cursor.execute(query, (user_id,))
         return self._cursor.fetchone()
@@ -172,6 +173,7 @@ class db:
             db.get_scooter(1) -> (1, 63.41947, 10.40174, 0)
             ```
         """
+        self.ensure_connection()
         query = "SELECT * FROM scooters WHERE uuid = %s"
         self._cursor.execute(query, (scooter_id,))
         return self._cursor.fetchone()
@@ -190,6 +192,7 @@ class db:
             db.get_rental_by_id(1) -> (1, 2, 3, False, "2023-10-01 12:00:00", "2023-10-01 12:30:00", 15.0)
             ```
         """
+        self.ensure_connection()
         query = "SELECT * FROM rentals WHERE id = %s"
         self._cursor.execute(query, (rental_id,))
         return self._cursor.fetchone()
@@ -208,6 +211,7 @@ class db:
             db.get_active_rental_by_user(1) -> (5, 1, 3, True, "2023-10-01 12:00:00", None, 0.0)
             ```
         """
+        self.ensure_connection()
         query = "SELECT * FROM rentals WHERE user_id = %s AND is_active = 1"
         self._cursor.execute(query, (user_id,))
         return self._cursor.fetchone()
@@ -226,6 +230,7 @@ class db:
             db.get_active_rental_by_scooter(1) -> (5, 1, 3, True, "2023-10-01 12:00:00", None, 0.0)
             ```
         """
+        self.ensure_connection()
         query = "SELECT * FROM rentals WHERE scooter_id = %s AND is_active = 1"
         self._cursor.execute(query, (scooter_id,))
         return self._cursor.fetchone()
@@ -245,6 +250,7 @@ class db:
             db.rental_started(5, 6) -> True
             ```
         """
+        self.ensure_connection()
         query = "INSERT INTO rentals (user_id, scooter_id, is_active, start_time, end_time, total_price) VALUES (%s, %s, 1, UTC_TIMESTAMP(), NULL, 0.0)"
         try:
             self._cursor.execute(query, (user_id, scooter_id))
@@ -272,6 +278,7 @@ class db:
             db.rental_completed(5, 15.0, {"latitude": 63.41947, "longitude": 10.40174}, 0) -> True
             ```
         """
+        self.ensure_connection()
         rental = self.get_active_rental_by_user(user_id)
         if rental is None:
             self._logger.error("Rental not found")
@@ -303,6 +310,7 @@ class db:
         Returns:
             bool: True if the scooter status was successfully updated, False otherwise.
         """
+        self.ensure_connection()
         query = "UPDATE scooters SET status = %s WHERE uuid = %s"
         self._logger.debug(f"update_scooter_status: params: {status}, {scooter_id}")
         try:
@@ -326,6 +334,7 @@ class db:
         Returns:
             bool: True if the scooter information was successfully updated, False otherwise.
         """
+        self.ensure_connection()
         query = "UPDATE scooters SET latitude = %s, longtitude = %s, status = %s WHERE uuid = %s"
         self._logger.debug(f"_update_scooter_info: params: {lat}, {lon}, {status}, {scooter_id}")
         try:
@@ -345,6 +354,7 @@ class db:
         Returns:
             list: A list of dictionaries containing scooter information.
         """
+        self.ensure_connection()
         query = "SELECT * FROM scooters"
         self._cursor.execute(query)
         return self._cursor.fetchall()
@@ -357,6 +367,7 @@ class db:
         Returns:
             list: A list of dictionaries containing user information.
         """
+        self.ensure_connection()
         query = "SELECT * FROM users"
         self._cursor.execute(query)
         return self._cursor.fetchall()
@@ -369,6 +380,7 @@ class db:
         Returns:
             list: A list of dictionaries containing rental information.
         """
+        self.ensure_connection()
         query = "SELECT * FROM rentals"
         self._cursor.execute(query)
         return self._cursor.fetchall()
@@ -381,6 +393,7 @@ class db:
         Returns:
             list: A list of dictionaries containing active rental information.
         """
+        self.ensure_connection()
         query = "SELECT * FROM rentals WHERE is_active = 1"
         self._cursor.execute(query)
         return self._cursor.fetchall()
@@ -393,6 +406,7 @@ class db:
         Returns:
             bool: True if the deletion was successful, False otherwise.
         """
+        self.ensure_connection()
         query = "DELETE FROM rentals WHERE is_active = 0"
         try:
             self._cursor.execute(query)
@@ -417,6 +431,7 @@ class db:
             [(1, 63.40947, 10.41174, 0), (2, 63.42947, 10.39174, 0)]
             ```
         """
+        self.ensure_connection()
         query = "SELECT * FROM scooters WHERE latitude BETWEEN %s AND %s AND longtiude BETWEEN %s AND %s"
         latitude = location["latitude"]
         longitude = location["longitude"]
@@ -438,6 +453,7 @@ class db:
             db.add_user("John Doe", 350.0) -> True
             ```
         """
+        self.ensure_connection()
         if funds < 0:
             self._logger.error("Funds cannot be negative")
             return False
@@ -466,6 +482,7 @@ class db:
             db.add_scooter(63.41947, 10.40174, 0) -> True
             ```
         """
+        self.ensure_connection()
         query = "INSERT INTO scooters (latitude, longtitude, status) VALUES (%s, %s, %s)"
         try:
             self._cursor.execute(query, (latitude, longitude, status))
@@ -494,6 +511,7 @@ class db:
             db.get_user(1) -> (1, "Kari Normann", 75.0)
             ```
         """
+        self.ensure_connection()
         if amount <= 0:
             self._logger.error("Charge amount cannot be negative")
             return False
@@ -525,6 +543,7 @@ class db:
             db.get_user(1) -> (1, "Kari Normann", 175.0)
             ```
         """
+        self.ensure_connection()
         if amount <= 0:
             self._logger.error("Deposit amount cannot be negative")
             return False
@@ -550,6 +569,7 @@ class db:
             db.user_has_active_rental(1) -> True
             ```
         """
+        self.ensure_connection()
         query = "SELECT COUNT(*) FROM rentals WHERE user_id = %s AND is_active = 1"
         self._cursor.execute(query, (user_id,))
         return self._cursor.fetchone()[0] > 0
@@ -567,6 +587,7 @@ class db:
             db.scooter_has_active_rental(1) -> True
             ```
         """
+        self.ensure_connection()
         query = "SELECT COUNT(*) FROM rentals WHERE scooter_id = %s AND is_active = 1"
         self._cursor.execute(query, (scooter_id,))
         return self._cursor.fetchone()[0] > 0
