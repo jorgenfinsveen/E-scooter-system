@@ -14,13 +14,15 @@ __Authors__:
 
 ## Table of Contents
 
+- [Installation Guide](#installation-guide)
+  - [Full-stack Application](#setting-up-the-full-stack-application)
+  - [E-scooter Software](#setting-up-the-e-scooter-software)
 - [Architecture](#architecture)
+  - [Overview](#overview)
   - [Database](#database)
 - [Communication](#communication)
   - [MQTT](#mqtt)
-    - [Requesting an Unlock/Lock Request](#requesting-an-unlocklock-request)
-    - [Responding to an Unlock/Lock Request](#responding-to-an-unlocklock-request)
-    - [Aborting a Session Upon Low Temperature or Crash](#aborting-a-session-upon-low-temperature-or-crash)
+  - [HTTP](#http)
 - [Components](#components)
   - [Back-end](#back-end)
   - [Front-end](#front-end)
@@ -30,11 +32,162 @@ __Authors__:
 - [State Machines](#state-machines)
   - [WeatherLock](#weatherlock)
   - [CrashDetection](#crashdetection)
-- [AI Declaration](#ai-declatation)
+- [AI Declaration](#ai-declaration)
+
+
+## Installation Guide
+
+### Setting up the full-stack application
+
+The full-stack application includes:
+* Back-end
+* Front-end
+* Nginx (Web server)
+* Mosquitto (MQTT broker)
+
+#### Cloning the repo
+First, you need to clone this repository to the machine which is to run the back-end:
+```sh
+git clone https://github.com/MagnusAOlsen/spec3_komsys
+```
+
+#### Installing dependencies
+Now, you need to ensure that you have [Docker](https://www.docker.com) and [Docker Compose)[https://docs.docker.com/compose/) installed. It is used for containerization and deployment of the application, and can be installed as follows:
+
+__Windows__:
+```powershell
+winget install --id Docker.DockerDesktop -e
+```
+
+__MacOS__:
+```sh
+brew install --cask docker
+```
+
+__Linux (Ubuntu/Debian)__:
+```bash
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg lsb-release
+
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$(. /etc/os-release && echo "$ID") \
+  $(lsb_release -cs) stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+Now, you will need to install mosquitto and Nginx. You may find the download for your system here:
+* Mosquitto: _[downloads](https://mosquitto.org/download/)_
+* Nginx: _[downloads](https://nginx.org/en/download.html)_
+
+#### Setting up environment variables
+When this is done, you need to insert environment files (.env) at the following locations:
+* [backend/app/](/backend/app/)
+  * ```.env.prod```
+  * ```.env.test```
+* [frontend/app/](/frontend/app/)
+  * ```.env```
+  * ```.env.production```
+
+ This should be the content of the back-end environment files:
+
+ __.env.prod__:
+ ```env
+DB_NAME=[name of your production database]
+DB_HOST=[production database host]
+DB_PORT=[port of the production database host]
+DB_USER=[production database username]
+DB_PASSWORD=[production database password]
+```
+
+ __.env.test__:
+ ```env
+DB_NAME=[name of your test database]
+DB_HOST=[test database host]
+DB_PORT=[port of the test database host]
+DB_USER=[test database username]
+DB_PASSWORD=[test database password]
+```
+
+This should be the content of the front-end environment files:
+
+__.env__:
+```env
+VITE_API_URL=/api/v1/
+```
+
+__.env.production__:
+```env
+VITE_API_URL=/api/v1/
+```
+
+#### Deploying the application
+Now, you may deploy the application by opening a terminal on the location of the root-catalogue of the project and run the following commands:
+```sh
+docker-compose build # build the containers
+docker-compose up -d # deploy the containers. d: detaches the process
+docker-compose logs -f #show logs. f: display logs from the containers
+```
+In order to take the containers down and up, you may run the following commands:
+```sh
+docker-compose down # take down the containers
+docker-compose up -d # deploy the containers
+```
+
+The application is now reachable through the front-end at ```http:[ip-of-your-computer]:8080```
+
+
+### Setting up the e-scooter software
+
+#### Cloning the repo
+First, you need to clone this repository to the Raspberry Pi:
+```sh
+git clone https://github.com/MagnusAOlsen/spec3_komsys
+```
+
+#### Installing dependencies
+
+Firstly, this software requires that you have equipped the Raspberry Pi with a [Sense HAT](https://www.raspberrypi.com/products/sense-hat/).
+The e-scooter application runs in Python, so you need to ensure that you have this installed:
+```sh
+sudo apt update
+sudo apt install -y python3 python3-pip python3-venv
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+```
+
+
+Now, you need to install Python dependencies for the project. You may install everything you need by opening a terminal on your Raspberry Pi in the root-catalogue of the cloned repo and run the following commands:
+```sh
+pip install sense-hat
+pip install -r requirements.txt
+```
+
+#### Running the application
+In order to run the application, open a terminal and move to the directory named ```e-scooter```. Run the following command:
+```sh
+ID=1            # The scooter_id of the scooter that the software should represent.
+HOST=127.0.0.1  # The IP-address of the computer that runs the full-stack application.
+PORT=1883       # The port of the MQTT broker (1883 by default)
+
+python __main__.py --id="$ID" --host="$HOST" --port="$PORT"
+```
+
+After doing this, a red 4x4 square should appear on the SenseHAT.
+
+
+
+
 
 
 
 ## Architecture
+### Overview
+
 The system is built using the component-philosophy, where the application consists of several independent main-modules. On the high-level aspect, the system consists of the following components: 
 * [__Back-end__](/backend): Python based.
   * _HTTP_: Implements a REST API for communication with the front-end.
@@ -116,6 +269,65 @@ __Situations where the e-scooter will terminate an active session__:
 1. If the [WeatherLock](/e-scooter/stm/WeatherLock.py) state machine receives the trigger ```temperature_invalid``` when in the state ```awaiting-weather-report```, the escooter is locked, and the status int is set to ```2```.
 2. If the [CrashDetection](/e-scooter/stm/CrashDetection.py) state machine receives the trigger ```t```when in the state ```crash_detected```, the escooter is locked, and the status in is set to ```4```.
 
+### HTTP
+The back-end utilizes [FastAPI](https://fastapi.tiangolo.com) in order to set up a REST API, allowing communication between front-end and back-end. This is implemented in [http.py](/backend/app/api/http.py). In order to expose the end-points, you may run the application using the following environment variable:
+```dockerfile
+# Alternatives: "PROD", "TEST"
+ENV DEPLOYMENT_MODE="TEST"
+```
+This will make it possible to view all available end-points by visiting the following end-point in your browser, Postman, curL, or your preferred API inspection tool:
+```url
+http:[ip of host]:8080/robots.txt
+```
+You will then receive a response as follows:
+```html
+User-agent: *
+Endpoint: /static
+Endpoint: /assets
+Endpoint: /api/v1/
+Endpoint: /api/v1/scooter/{uuid}/single-unlock
+Endpoint: /api/v1/scooter/{uuid}/single-lock
+Endpoint: /api/v1/test-weather
+Endpoint: /api/v1/scooter/{uuid}
+Endpoint: /api/v1/user/{id}
+Endpoint: /api/v1/rental/{rental_id}
+Endpoint: /api/v1/rental/ok/{rental_id}
+Endpoint: /api/v1/rental
+Endpoint: /{full_path:path}
+Endpoint: /api/v1/
+Endpoint: /api/v1/scooter/{uuid}/single-unlock
+Endpoint: /api/v1/scooter/{uuid}/single-lock
+Endpoint: /api/v1/test-weather
+Endpoint: /api/v1/scooter/{uuid}
+Endpoint: /api/v1/user/{id}
+Endpoint: /api/v1/rental/{rental_id}
+Endpoint: /api/v1/rental/ok/{rental_id}
+Endpoint: /api/v1/rental
+```
+
+
+The application consists of the following end-points:
+
+#### GET
+
+| Endpoint                               | Queryparameters                                                       | Description                                                                                                         |
+|----------------------------------------|-----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| /api/v1/                               |                                                                       | Returns {"message": "Hello from backend!"}                                                                          |
+| /api/v1/test-weather                   |                                                                       | Returns a string indicating whether the current weather conditions are suitable for riding at the coordinates of Trondheim.     |
+| /api/v1/scooter/{```scooter_id```}     | ```scooter_id```: The ID of the scooter to get.                       | Returns the information of a scooter instance.                                                                      |
+| /api/v1/user/{```user_id```}           | ```user_id```: The ID of the user to get.                             | Returns the information of a user instance.                                                                         |
+| /api/v1/rental/{```rental_id```}       | ```rental_id```: The ID of the rental to get.                         | Returns the information of a rental instance.                                                                       |
+| /api/v1/rental?user_id=```{user_id```} | ```user_id```: The ID of the user associated with an active rental.   | Returns the user's active rental session given that it exists.                                                      |
+| /api/v1/rental/ok/{```rental_id```}    | ```rental_id```: The ID of the rental to check if still is active.    | Checks whether a rental is still active, and returns redirect end-points based on the status of the rented scooter. |
+
+
+#### POST
+
+| Endpoint                                                     | Parameter 1                                                                     | Parameter 2                                                | Description                                                                                                             |
+|--------------------------------------------------------------|---------------------------------------------------------------------------------|------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| /api/v1/scooter/{```scooter_id```}/single-unlock?user_id={```user_id```} | ```scooter_id```: The ID of the scooter to unlock when starting a rental session.     | ```user_id```: The ID of the user which are to rent the scooter. | Starts an active rental session and requests the back-end to instruct the scooter to unlock through MQTT.               |
+| /api/v1/scooter/{```scooter_id```}/single-lock?user_id={```user_id```}   | ```scooter_id```: The ID of the scooter to lock when ending an active rental session. | ```user_id```: The ID of the user which are renting the scooter. | Ends an active rental session, process payment, and requests the back-end to instruct the scooter to lock through MQTT. |
+
 ## Components
 The system is built using the component-philosophy, where the application consists of several independent modules:
 ### Back-end
@@ -139,7 +351,7 @@ It follows a very modular-based design, where all control-flows starts at either
 
 ### Front-end
 The front-end is written in TypeScript using the React.js framework. It consists of the following:
-* [__comopnents__](/frontend/app/src/components)
+* [__components__](/frontend/app/src/components)
   * _CoRideButton.tsx_
   * _Image.tsx_
   * _Location.tsx_
@@ -156,7 +368,7 @@ The front-end is written in TypeScript using the React.js framework. It consists
   * _InactiveRental.tsx_
   * _RentScooter.tsx_
 
-The __pages__-catalogue contains the different pages the front-end consists of, where the primary chain-of-view is ```RentScooter -> ActiveRental -> InactiveRental```. Failing to unlock an e-scooter would direct the user from _RentScooter.tsx_ to _ErrorPage.tsx_, whereas a premature session termination would direct the user from _ActiveRental.tsx_ to _AbortPage.tsx_, which again displays _EmergencyAbort.tsx_ or _WeatherAbort.tsx_ depending on the cause of the termination. The front-end will almost immediately redirect the user to an abort-page upon a session termination. This was done by having the front-end continuosly check with the back-end wether the rental is still active, where the back-end responds with a redirect upon a session termination, otherwise an empty response. The __comopnents__ contains smaller components which are displayed in the UI, such as buttons, input-fields, images, and interactive maps.
+The __pages__-catalogue contains the different pages the front-end consists of, where the primary chain-of-view is ```RentScooter -> ActiveRental -> InactiveRental```. Failing to unlock an e-scooter would direct the user from _RentScooter.tsx_ to _ErrorPage.tsx_, whereas a premature session termination would direct the user from _ActiveRental.tsx_ to _AbortPage.tsx_, which again displays _EmergencyAbort.tsx_ or _WeatherAbort.tsx_ depending on the cause of the termination. The front-end will almost immediately redirect the user to an abort-page upon a session termination. This was done by having the front-end continuously check with the back-end whether the rental is still active, where the back-end responds with a redirect upon a session termination, otherwise an empty response. The __comopnents__ contains smaller components which are displayed in the UI, such as buttons, input-fields, images, and interactive maps.
 
 
 ### E-scooter
@@ -174,7 +386,7 @@ The e-scooter is written in Python, and deployed on a Raspberry Pi 4 equipped wi
   * _initializer.py_
   * _singleton.py_
 
-The __api__-catalogue contains the MQTT-client which is used to communicate with the back-end. One may find the controllers in __controller__, where _MainController.py_ has the responsibility of the entire e-scooter, while _SenseHAT.py_ represents an interface to the Sense HAT. Furthermore, the __stm__-catalogue contains the two state machines which ensures that a session terminates upon low temperatures or a crash, as well as a driver-class to contain the state machines. Latsly, the __tools__-catalogue contains a [singleton](https://refactoring.guru/design-patterns/singleton) annotation, which was used to annotate the controllers and the MQTT-client as singletons, and _initializer.py_, which is used to initialize and restart the driver containing the state machines.
+The __api__-catalogue contains the MQTT-client which is used to communicate with the back-end. One may find the controllers in __controller__, where _MainController.py_ has the responsibility of the entire e-scooter, while _SenseHAT.py_ represents an interface to the Sense HAT. Furthermore, the __stm__-catalogue contains the two state machines which ensures that a session terminates upon low temperatures or a crash, as well as a driver-class to contain the state machines. Lastly, the __tools__-catalogue contains a [singleton](https://refactoring.guru/design-patterns/singleton) annotation, which was used to annotate the controllers and the MQTT-client as singletons, and _initializer.py_, which is used to initialize and restart the driver containing the state machines.
 
 
 ### Docker, Mosquitto, and Nginx
@@ -201,7 +413,7 @@ The e-scooter uses a status-code which is used to represent the state of the e-s
 | 10   | charging             | charging           |
 | 11   | unlocked             | scooter-occupied   |
 
-The status codes has been written down in JSON-format in the back-end, and can be found [here](/backend/app/resources).
+The status codes are defined in JSON-format in the back-end, and can be found [here](/backend/app/resources).
 
 ## State machines
 The e-scooter software utilizes state machines using the [stmpy](https://falkr.github.io/stmpy/) library in Python.
@@ -229,5 +441,5 @@ The statemachine is implemented in [__WeatherLock.py__](/e-scooter/stm/WeatherLo
 
 <br/><img src="/docs/crash_detection.png"/> <br/><br/><br/>
 
-## AI declatation
-Generative AI has been used for some aspects of the project. This includes comment generation, debugging, and code generation og the singleton annotation. The models used is primarily OpenAI's ChatGPT 4o. The group would like to emphasize that GenAI has not been used to generate functional parts of the software, and that the ideas and design choices are based on the intuition of the authors, not GenAI. For writing the vision document and system specification, OpenAI's ChatGPT 4o has been used to fix LaTeX-related syntax errors, not text-generation. AI have been used to some extent for spell-checking. No images has been produced using GenAI.
+## AI declaration
+Generative AI has been used for some aspects of the project. This includes comment generation, debugging, and code generation of the singleton annotation. The models used is primarily OpenAI's ChatGPT 4o. The group would like to emphasize that GenAI has not been used to generate functional parts of the software, and that the ideas and design choices are based on the intuition of the authors, not GenAI. For writing the vision document and system specification, OpenAI's ChatGPT 4o has been used to fix LaTeX-related syntax errors, not text-generation. AI have been used to some extent for spell-checking. No images have been produced using GenAI.
