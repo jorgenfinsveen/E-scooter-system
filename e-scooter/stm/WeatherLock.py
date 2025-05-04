@@ -54,7 +54,7 @@ class WeatherLock:
         """
         Request a temperature analysis from the main-controller.
         """
-        self._state.set_state("awaiting-weather-report")
+        self._state.set("awaiting-weather-report")
     
     def lock_scooter(self):
         """
