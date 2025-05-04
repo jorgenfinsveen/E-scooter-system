@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
     logger.info(f"MQTT:")
     logger.info(f"\tHost:\t {HOST}:{PORT}")
-    mqtt_client = MQTTClient(host=HOST, port=PORT, controller=main_controller)
+    mqtt_client = MQTTClient(host=HOST, port=PORT)
     mqtt_client.subscribe(MQTT_INPUT_TOPIC)
     logger.info(f"\tConnected:\t {mqtt_client.is_connected()}")
 

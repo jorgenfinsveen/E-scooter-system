@@ -1,7 +1,7 @@
 import logging
 
 from api.mqtt import MQTTClient
-from controller.MainController import MainController
+from tools.observer import State
 
 # Transitions
 t0 = {
@@ -46,8 +46,8 @@ class CrashDetection:
     def __init__(self):
         self._logger = logging.getLogger(__name__)
         self.stm = None
-        self.mqtt_client = MQTTClient()
-        self.controller = MainController()
+        self._mqtt_client = MQTTClient()
+        self._state = State()
 
     def report_crash(self):
         """
@@ -66,5 +66,5 @@ class CrashDetection:
         Send a distress signal and aborting the session. Also locks the scooter.
         """
         self._logger.warning("Sending distress signal")
-        self.mqtt_client.abort_session(cause="distress")
-        self.controller.lock()
+        self._mqtt_client.abort_session(cause="distress")
+        self._state.set("distress")

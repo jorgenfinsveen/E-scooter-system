@@ -1,7 +1,7 @@
 import logging
 
 from api.mqtt import MQTTClient
-from controller.MainController import MainController
+from tools.observer import State
 
 # States
 t0 = {
@@ -47,19 +47,19 @@ class WeatherLock:
     def __init__(self):
         self._logger = logging.getLogger(__name__)
         self.stm = None
-        self.mqtt_client = MQTTClient()
-        self.controller = MainController()
+        self._mqtt_client = MQTTClient()
+        self._state = State()
 
     def request_temperature(self):
         """
         Request a temperature analysis from the main-controller.
         """
-        self.controller.request_temperature()
+        self._state.set("awaiting-weather-report")
     
     def lock_scooter(self):
         """
         Lock the scooter and abort the session.
         """
         self._logger.warning("Locking the scooter due to weather conditions")
-        self.mqtt_client.abort_session(cause="weather")
-        self.controller.lock()
+        self._mqtt_client.abort_session(cause="weather")
+        self._state.set("locked")

@@ -1,9 +1,11 @@
 import logging
 from stmpy import Machine
 from stm.Driver import ScooterDriver
+from tools.observer import State
 from tools.singleton import singleton
 from stm.WeatherLock import WeatherLock, getWeatherTransitions
 from stm.CrashDetection import CrashDetection, getCrashTransitions
+
 
 @singleton
 class Initializer:
@@ -15,6 +17,8 @@ class Initializer:
         self._logger = logging.getLogger(__name__)
         self._logger.debug("Initializer: __init__")
         self.main_controller = main_controller
+        self._state = State()
+        self._state.subscribe(self.main_controller)
 
     def init_driver(self):
         """

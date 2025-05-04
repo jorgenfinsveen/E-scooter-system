@@ -4,6 +4,7 @@ import json
 import logging
 import paho.mqtt.client as mqtt
 
+from tools.observer import State
 from tools.singleton import singleton
 
 
@@ -14,15 +15,12 @@ class MQTTClient:
     It connects to the MQTT broker and subscribes to topics.
     It also handles incoming messages and sends responses.
     """
-    def __init__(self, host=None, port=None, controller=None):
+    def __init__(self, host=None, port=None):
         self._logger = logging.getLogger(__name__)
-        if controller != None:
-            self.controller = controller
-
+        self._state = State()
         if (host!=None and port!=None):
             self.client = mqtt.Client()
             self._start(host, port)
-
 
     def _start(self, host, port):
         try:
@@ -61,12 +59,11 @@ class MQTTClient:
         if self._command == "unlock":
             response = self._build_response()
             self.publish(f"escooter/response/{self._scooter_id}", response)
-            self.controller.unlock()
+            self._state.set("unlock")
         elif self._command == "lock":
             response = self._build_response()
             self.publish(f"escooter/response/{self._scooter_id}", response)
-            if not self.controller.is_locked():
-                self.controller.lock()
+            self._state.set("lock")
         else:
             self._logger.error("Unknown command received:", self._command)
         

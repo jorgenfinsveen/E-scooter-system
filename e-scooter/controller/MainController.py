@@ -1,6 +1,8 @@
 import logging
 
+from tools.observer import State
 from tools.singleton import singleton
+
 
 
 X = [0,   0, 0]
@@ -59,6 +61,7 @@ arrow_right = [pixel for row in arrow_right for pixel in row]
 
 
 
+
 @singleton
 class MainController:
     """
@@ -75,6 +78,7 @@ class MainController:
         self._first_unlock = True
         self.logger = logging.getLogger(__name__)
         self.active_crash = False
+        self._state = State()
 
     def set_mqtt_client(self, mqtt_client):
         self.mqtt_client = mqtt_client
@@ -88,6 +92,17 @@ class MainController:
     def setSense(self, controller_sense_hat):
         self.controller_sense_hat = controller_sense_hat
         self.controller_sense_hat.set_pixels(dott_red)
+
+
+    def notify(self):
+        event = self._state.get()
+        if event == "unlock":
+            self.unlock()
+        elif event == "lock":
+            self.lock()
+        elif event == "awaiting-weather-report":
+            self.request_temperature()
+
 
     def unlock(self):
         """
