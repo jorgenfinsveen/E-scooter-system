@@ -37,6 +37,15 @@ class single_ride_service:
 
 
     def parse_status(self, code) -> tuple[str, str]:
+        """
+        Parse the scooter status code and return the status and redirect URL.
+        Args:
+            code (int): The status code to parse.
+        Returns:
+            tuple: 
+                * [0]: (str) The status message.
+                * [1]: (str) The redirect URL.
+        """
         status = self._status_codes[str(code)]
         redirect = self._redirect[str(code)]
         return status, redirect
@@ -105,6 +114,8 @@ class single_ride_service:
         else:
             return _rental
 
+
+
     def get_rental_info(self, rental_id: int) -> dict:
         """
         Get the rental data from the database.
@@ -147,6 +158,11 @@ class single_ride_service:
     
 
     def check_rental_status(self, rental_id: int) -> tuple[bool, str]:
+        """
+        Check the status of a rental by its ID. This function checks if the rental exists
+        in the database. If it does not, it will check the status of the scooter and
+        return a redirect URL to the front-end in order to display the correct error-page.
+        """
         _rental = self._db.get_rental_by_id(rental_id)
 
         if _rental is None:

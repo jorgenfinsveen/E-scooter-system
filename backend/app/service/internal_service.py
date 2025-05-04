@@ -26,26 +26,6 @@ class internal_service:
             self._status_codes = json.load(f)
 
 
-    """
-    message = {
-        "id": 1,                    # Server ID             (int)
-        "uuid": 2,                  # Scooter ID            (int)
-        "battery": 100,             # Battery               (int)
-        "status": 4,                # Status                (int)
-        "abort": True               # Abort                 (bool)
-        "timestamp": time.time(),   # Timestamp             (time)
-        "location": {
-            "latitude":  63.4197,       # Latitude  (float)
-            "longitude": 10.4018        # Longitude (float)
-        }
-    }
-
-    def get_active_rental_by_scooter(self: object, scooter_id: int) -> tuple[int, int, str, bool, str, str, float]:
-    def rental_completed(self:object, user_id: int, price: float, lat: float, lon: float, status: int) -> bool:
-    def update_scooter_status(self: object, scooter_id: int, status: int) -> bool:
-    """
-
-
     def session_aborted(self, scooter_id: int, payload: dict) -> tuple[bool, bool]:
         """
         Handle the session aborted event.
@@ -78,6 +58,18 @@ class internal_service:
 
 
     def _handle_abort_cause(self, status: int, user: dict, rental: dict, scooter: int, lat: float, lon: float) -> None:
+        """
+        Handle the cause of the session abort.
+        This function is called when the scooter session is aborted.
+        If the abort is due to distress, it will log the event and contact emergency services.
+        Args:
+            status (int): The status code of the scooter.
+            user (dict): The user data from the database.
+            rental (dict): The rental data from the database.
+            scooter (int): The ID of the scooter.
+            lat (float): The latitude of the scooter location.
+            lon (float): The longitude of the scooter location.
+        """
         if self._status_codes[str(status)] == "distress":
             self._logger.critical("Session aborted due to distress alert:")
             self._logger.critical(f"\tUser: {user['name']}")

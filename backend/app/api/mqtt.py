@@ -196,7 +196,6 @@ class mqtt_client:
         return True
 
 
-    # TODO: These needs to receive the whole scooter object. Needs to check if scooter is already locked/unlocked
     def scooter_unlock_single(self : object, scooter : dict) -> tuple[bool, int, str]:
         """
         This function unlocks a scooter.

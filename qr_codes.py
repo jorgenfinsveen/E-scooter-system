@@ -20,7 +20,7 @@ def main():
         print(f"Laget QR-kode for scooter {scooter_id} -> {url}")
 
     # Oppdater .gitignore
-    update_gitignore(qr_dir)
+    #update_gitignore(qr_dir)
 
 def update_gitignore(folder):
     gitignore_path = ".gitignore"

@@ -14,12 +14,8 @@ qr_codes
 .venv
 ./qr_codes/
 
-./qr_codes/
 __pycache__/
-./qr_codes/
 NOTES.md
-./qr_codes/
+**/__pycache__/
+**/*.py[cod]
 
-./qr_codes/
-
-./qr_codes/

@@ -119,6 +119,11 @@ class db:
 
 
     def is_connection_alive(self):
+        """
+        Check if the database connection is alive.
+        Returns:
+            bool: True if the connection is alive, False otherwise.
+        """
         try:
             self._conn.ping(reconnect=True)
             return True
@@ -127,6 +132,10 @@ class db:
 
 
     def ensure_connection(self):
+        """
+        Ensure that the database connection is alive.
+        If the connection is not alive, it will attempt to reconnect.
+        """
         if self._conn is None or self._cursor is None or not self.is_connection_alive():
             self._connect(self.credentials)
 
@@ -286,6 +295,14 @@ class db:
 
 
     def update_scooter_status(self: object, scooter_id: int, status: int) -> bool:
+        """
+        Update the status of a scooter in the database.
+        Args:
+            scooter_id (int): The ID of the scooter to update.
+            status (int): The new status of the scooter.
+        Returns:
+            bool: True if the scooter status was successfully updated, False otherwise.
+        """
         query = "UPDATE scooters SET status = %s WHERE uuid = %s"
         self._logger.debug(f"update_scooter_status: params: {status}, {scooter_id}")
         try:

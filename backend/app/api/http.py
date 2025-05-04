@@ -272,6 +272,20 @@ async def get_scooter_info(
     uuid: str, 
     request: Request,
 ):
+    """
+    Get information about a scooter with the given UUID.
+    This endpoint is used to retrieve information about a scooter.
+    Args:
+        uuid (str): UUID of the scooter to retrieve information about.
+        request (Request): FastAPI request object.
+    Returns:
+        dict: A dictionary containing a message indicating the result of the scooter information retrieval.
+    Example:
+        ```
+        curl -X GET http://localhost:8000/scooter/1234 -> "scooter information"
+        curl -X GET http://localhost:8000/scooter/1235 -> "scooter not found"
+        ```
+    """
     logger.debug("Request: HTTP GET /scooter/{uuid}")
     logger.debug(f"single_ride_service: {hasattr(request.app.state, 'single_ride_service')}")
     resp = request.app.state.single_ride_service.get_scooter_info(uuid)
@@ -283,6 +297,20 @@ async def get_user_info(
     id: str, 
     request: Request,
 ):
+    """
+    Get information about a user with the given ID.
+    This endpoint is used to retrieve information about a user.
+    Args:
+        id (str): ID of the user to retrieve information about.
+        request (Request): FastAPI request object.
+    Returns:
+        dict: A dictionary containing a message indicating the result of the user information retrieval.
+    Example:
+        ```
+        curl -X GET http://localhost:8000/user/1234 -> "user information"
+        curl -X GET http://localhost:8000/user/1235 -> "user not found"
+        ```
+    """
     logger.debug("Request: HTTP GET /user/{id}")
     resp = request.app.state.single_ride_service.get_user_info(id)
     return {"message": resp}
@@ -293,6 +321,20 @@ async def get_rental_info(
     rental_id: str, 
     request: Request,
 ):
+    """
+    Get information about a rental with the given rental ID.
+    This endpoint is used to retrieve information about a rental.
+    Args:
+        rental_id (str): ID of the rental to retrieve information about.
+        request (Request): FastAPI request object.
+    Returns:
+        dict: A dictionary containing a message indicating the result of the rental information retrieval.
+    Example:
+        ```
+        curl -X GET http://localhost:8000/rental/1234 -> "rental information"
+        curl -X GET http://localhost:8000/rental/1235 -> "rental not found"
+        ```
+    """
     logger.debug("Request: HTTP GET /rental/{rental_id}")
     resp = request.app.state.single_ride_service.get_rental_info(rental_id)
     return JSONResponse(
@@ -306,6 +348,20 @@ async def is_rental_ok(
     rental_id: str, 
     request: Request,
 ):
+    """
+    Check if a rental is OK with the given rental ID.
+    This endpoint is used to check the status of a rental.
+    Args:
+        rental_id (str): ID of the rental to check.
+        request (Request): FastAPI request object.
+    Returns:
+        dict: A dictionary containing a message indicating the result of the rental status check.
+    Example:
+        ```
+        curl -X GET http://localhost:8000/rental/1234 -> "rental is OK"
+        curl -X GET http://localhost:8000/rental/1235 -> "rental is not OK"
+        ```
+    """
     logger.debug("Request: HTTP GET /rental/ok/{rental_id}")
     resp = request.app.state.single_ride_service.check_rental_status(rental_id)
     return JSONResponse(
@@ -319,6 +375,20 @@ async def get_active_rental(
     request: Request,
     user_id: str = Query(..., description="ID of the user to check for active rental")
 ):
+    """
+    Get the active rental for a user with the given user ID.
+    This endpoint is used to retrieve the active rental for a user.
+    Args:
+        user_id (str): ID of the user to check for active rental.
+        request (Request): FastAPI request object.
+    Returns:
+        dict: A dictionary containing a message indicating the result of the active rental retrieval.
+    Example:
+        ```
+        curl -X GET http://localhost:8000/rental?user_id=1234 -> "active rental information"
+        curl -X GET http://localhost:8000/rental?user_id=1235 -> "no active rental"
+        ```
+    """
     logger.debug("Request: HTTP GET /rental?user_id={user_id}")
     resp = request.app.state.single_ride_service.get_active_rental_by_user(user_id)
     
