@@ -48,7 +48,7 @@ The full-stack application includes:
 #### Cloning the repo
 First, you need to clone this repository to the machine which is to run the back-end:
 ```sh
-git clone https://github.com/MagnusAOlsen/spec3_komsys
+git clone https://github.com/jorgenfinsveen/E-scooter-system.git
 ```
 
 #### Installing dependencies
@@ -147,7 +147,7 @@ The application is now reachable through the front-end at ```http:[ip-of-your-co
 #### Cloning the repo
 First, you need to clone this repository to the Raspberry Pi:
 ```sh
-git clone https://github.com/MagnusAOlsen/spec3_komsys
+git clone https://github.com/jorgenfinsveen/E-scooter-system.git
 ```
 
 #### Installing dependencies
