@@ -1,18 +1,19 @@
 import os
+import time
 import logging
 import asyncio
-import time
-import socket
-import subprocess
 import uvicorn
 import argparse
 from pathlib import Path
-from api.http import *
-from api.mqtt import *
 from threading import Thread
-from logic import database
 from dotenv import load_dotenv
 from colorlog import ColoredFormatter 
+
+
+from api.http import *
+from api.mqtt import *
+from api import database
+
 
 
 DEPLOYMENT_MODE = os.getenv('DEPLOYMENT_MODE', 'TEST')

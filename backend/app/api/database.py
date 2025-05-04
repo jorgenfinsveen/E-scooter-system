@@ -1,5 +1,6 @@
 import logging
 import mysql.connector
+
 from tools.singleton import singleton
 
 

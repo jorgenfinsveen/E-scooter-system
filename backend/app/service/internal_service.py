@@ -3,8 +3,11 @@ import json
 import time
 import logging
 from datetime import datetime
+
+from api import database
+from logic import transaction
 from tools.singleton import singleton
-from logic import database, transaction
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCOOTER_STATUS_CODES_PATH = os.path.join(BASE_DIR, "resources/scooter-status-codes.json")
