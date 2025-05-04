@@ -274,10 +274,6 @@ class single_ride_service:
         
         user = self._parse_user(_user)
 
-        # Todo: Finn nyligste avsluttete rental
-        # Todo: Lagre tid, location og pris på rental
-        # Todo: Finn status kode og redirect deretter
-
         return user
 
 

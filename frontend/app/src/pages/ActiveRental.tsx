@@ -12,12 +12,6 @@ const ActiveRental = () => {
   const [seconds, setSeconds] = useState<number>(0); //State variable to keep track of elapsed time
   const [userName, setUserName] = useState<string>(""); //State variable to store the user's name
   const [userId, setUserId] = useState<string>(""); //State variable to store the user's ID
-
-  const { scooter_id } = useParams<{ scooter_id: string }>();
-
-  const [seconds, setSeconds] = useState<number>(0);
-  const [userName, setUserName] = useState<string>("");
-  const [userId, setUserId] = useState<string>("");
   const [rentalId, setRentalId] = useState<string>("");
   const [active, setActive] = useState<boolean>(false);
 
