@@ -3,7 +3,7 @@ import logging
 from api.mqtt import MQTTClient
 from controller.MainController import MainController
 
-
+# States
 t0 = {
     'source': 'initial',
     'target': 'idle',
@@ -33,9 +33,16 @@ t3 = {
 
 
 def getWeatherTransitions():
+    """
+    Returns the state machine transitions for the weather lock.
+    """
     return [t0, t1, t2, t3]
 
 class WeatherLock:
+    """
+    The WeatherLock class manages the state machine for weather conditions.
+    It locks the scooter if the temperature is below a certain threshold.
+    """
 
     def __init__(self):
         self._logger = logging.getLogger(__name__)
@@ -44,9 +51,15 @@ class WeatherLock:
         self.controller = MainController()
 
     def request_temperature(self):
+        """
+        Request a temperature analysis from the main-controller.
+        """
         self.controller.request_temperature()
     
     def lock_scooter(self):
+        """
+        Lock the scooter and abort the session.
+        """
         self._logger.warning("Locking the scooter due to weather conditions")
         self.mqtt_client.abort_session(cause="weather")
         self.controller.lock()

@@ -61,6 +61,9 @@ arrow_right = [pixel for row in arrow_right for pixel in row]
 
 @singleton
 class MainController:
+    """
+    MainController class to manage the scooter's state and interactions.
+    """
 
     def __init__(self, scooter_id: int):
         self.scooter_id = scooter_id
@@ -87,6 +90,9 @@ class MainController:
         self.controller_sense_hat.set_pixels(dott_red)
 
     def unlock(self):
+        """
+        Unlock the scooter and start the driver.
+        """
         self.controller_sense_hat.set_pixels(dott_green)
         self.locked = False
         if not self._first_unlock:
@@ -97,6 +103,9 @@ class MainController:
         self.driver.start()
 
     def lock(self):
+        """
+        Lock the scooter and stop the driver.
+        """
         self.controller_sense_hat.lock_escooter(dott_red)
         self.locked = True
         self.driver.stop()
@@ -105,6 +114,9 @@ class MainController:
         return self.locked
 
     def request_temperature(self):
+        """
+        Request a temperature analysis from the sense-hat controller and analyse it.
+        """
         temperature = self.controller_sense_hat.check_temperature()
         message = "temperature_valid" if temperature >= 2 else "temperature_invalid"
         self.logger.debug(f"Temperature: {temperature}°C - {message}")
@@ -114,6 +126,9 @@ class MainController:
         self.driver.send("lock", "weather_lock")
 
     def newInputEvent(self, event):
+        """
+        Handle input events from the controller.
+        """
         if not self._show_arrow(event.direction, event.action):
             self.controller_sense_hat.set_pixels(dott_green)
         if event.action == "pressed" and event.direction == "middle":
@@ -129,6 +144,9 @@ class MainController:
                 self.controller_sense_hat.stop_sos()
 
     def _show_arrow(self, direction, action):
+        """
+        Show an arrow on the Sense HAT display based on the direction and action.
+        """
         if not self.locked and (action == "pressed" or action == "held") and not self.active_crash:
             if direction == "up":
                 self.controller_sense_hat.set_pixels(arrow_up)

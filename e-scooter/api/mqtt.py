@@ -9,6 +9,11 @@ from tools.singleton import singleton
 
 @singleton
 class MQTTClient:
+    """
+    MQTTClient class to handle MQTT communication.
+    It connects to the MQTT broker and subscribes to topics.
+    It also handles incoming messages and sends responses.
+    """
     def __init__(self, host=None, port=None, controller=None):
         self._logger = logging.getLogger(__name__)
         if controller != None:
@@ -41,6 +46,9 @@ class MQTTClient:
         self._logger.debug(f"Connected to MQTT Broker: {mqtt.connack_string(rc)}")
 
     def on_message(self, client, userdata, msg):
+        """
+        Callback function to handle incoming messages.
+        """
         payload_str = msg.payload.decode()
         payload = json.loads(payload_str)
 
@@ -87,6 +95,10 @@ class MQTTClient:
         self.client.loop_start()
 
     def abort_session(self, cause="unknown"):
+        """
+        Abort the session and send a message to the server.
+        The cause can be "weather", "distress", or "unknown".
+        """
         if cause == "weather":
             status = 2
         elif cause == "distress":

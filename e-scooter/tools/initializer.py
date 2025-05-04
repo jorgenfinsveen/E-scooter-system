@@ -7,6 +7,9 @@ from stm.CrashDetection import CrashDetection, getCrashTransitions
 
 @singleton
 class Initializer:
+    """
+    Initializer class to set up the state machine driver.
+    """
 
     def __init__(self, main_controller):
         self._logger = logging.getLogger(__name__)
@@ -14,6 +17,9 @@ class Initializer:
         self.main_controller = main_controller
 
     def init_driver(self):
+        """
+        Initialize the driver with the state machines.
+        """
         driver = ScooterDriver()
         weather_lock   = WeatherLock()
         crash_detector = CrashDetection()

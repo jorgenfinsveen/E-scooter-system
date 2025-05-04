@@ -7,7 +7,7 @@ from controller.SenseHAT import SenseHAT
 from tools.initializer import Initializer
 from controller.MainController import MainController
 
-
+# Parse command line arguments
 parser = argparse.ArgumentParser(description="Start e-scooter client.")
 parser.add_argument("--id",   type=int, default=1,             help="Scooter ID (must be positive integer)")
 parser.add_argument("--host", type=str, default="192.168.10.247", help="MQTT broker host (default: 192.168.10.247)")
@@ -37,7 +37,11 @@ formatter = ColoredFormatter(
     }
 )
 
+
 def setup_logging():
+    """
+    Set up logging with colored output.
+    """
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     logger = logging.getLogger()
@@ -46,6 +50,7 @@ def setup_logging():
     logger.addHandler(handler)
     
     return logger
+
 
 if __name__ == "__main__":
     logger = setup_logging()
