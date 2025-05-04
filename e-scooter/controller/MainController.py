@@ -1,4 +1,5 @@
 import logging
+
 from tools.singleton import singleton
 
 

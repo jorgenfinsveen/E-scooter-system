@@ -1,10 +1,12 @@
 import logging
 import argparse
+from colorlog import ColoredFormatter 
+
 from api.mqtt import MQTTClient
+from controller.SenseHAT import SenseHAT
 from tools.initializer import Initializer
 from controller.MainController import MainController
-from controller.SenseHAT import SenseHAT
-from colorlog import ColoredFormatter 
+
 
 parser = argparse.ArgumentParser(description="Start e-scooter client.")
 parser.add_argument("--id",   type=int, default=1,             help="Scooter ID (must be positive integer)")

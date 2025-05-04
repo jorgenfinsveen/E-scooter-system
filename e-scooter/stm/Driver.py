@@ -1,5 +1,5 @@
 import logging
-from stmpy import Machine, Driver
+from stmpy import Driver
 
 
 class ScooterDriver:

@@ -1,7 +1,8 @@
-import logging
-from sense_hat import SenseHat, ACTION_PRESSED, ACTION_HELD, ACTION_RELEASED # type: ignore
+
 import time
+import logging
 from threading import Thread
+from sense_hat import SenseHat, ACTION_PRESSED, ACTION_HELD, ACTION_RELEASED # type: ignore
 
 
 
