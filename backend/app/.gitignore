@@ -1,0 +1,9 @@
+api/__pycache__/
+logic/__pycache__/
+__pycache__/
+.env.prod
+.env.test
+__pycache__/
+tools/__pycache__/
+*/__pycache__/
+NOTES.md
