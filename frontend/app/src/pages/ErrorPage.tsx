@@ -7,14 +7,14 @@ import { Image } from "../components/Image";
 import { useParams } from "react-router-dom";
 
 const ErrorPage = () => {
+  // State variables to store error details
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [errorImage, setErrorImage] = useState<string | null>(null);
   const [errorTitle, setErrorTitle] = useState<string | null>(null);
-  //const errorType = "Bad Weather"; // This should be passed as a prop
   const { error_type } = useParams<{ error_type: string }>();
   const [errorType, setErrorType] = useState<string | undefined>("low-battery");
-  //const errorTypeStr = ;
 
+  // Dictionary to map error types to their corresponding details
   const ErrorDict: Record<
     string,
     { title: string; message: string; image: string }
@@ -76,13 +76,16 @@ const ErrorPage = () => {
     },
   };
 
+  // Function to set the error details based on the error type
   const setError = (type: string | undefined) => {
     if (type !== undefined) {
+      // If the error type exists in the dictionary, set the corresponding details
       if (ErrorDict[type]) {
         setErrorMessage(ErrorDict[type].message);
         setErrorImage(ErrorDict[type].image);
         setErrorTitle(ErrorDict[type].title);
       } else {
+        // If the error type is unknown, set default error details
         setErrorMessage("An unknown error occurred. Please try again.");
         setErrorImage(error);
         setErrorTitle("Unknown Error");
@@ -90,6 +93,7 @@ const ErrorPage = () => {
     }
   };
 
+  // useEffect to set the error type and details when the component mounts or the error type changes
   useEffect(() => {
     setErrorType(error_type?.toString());
     setError(error_type?.toString());
@@ -97,8 +101,11 @@ const ErrorPage = () => {
 
   return (
     <div className="error-page">
+      {/* Display the error title */}
       <h1 className="page-title">{errorTitle || "Unknown Error"}</h1>
+      {/* Display the error image if available */}
       {errorImage && <Image src={errorImage} width="19rem" height="10rem" />}
+      {/* Display the error message */}
       <p className="primary-paragraph">{errorMessage}</p>
     </div>
   );

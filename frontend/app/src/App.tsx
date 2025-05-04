@@ -8,8 +8,13 @@ import { AbortPage } from "./pages/AbortPage";
 function App() {
   return (
     <Routes>
+      {/* Route for renting a scooter */}
       <Route path="/scooter/:scooter_id" element={<RentScooter />} />
+
+      {/* Route for an active rental */}
       <Route path="/scooter/:scooter_id/active" element={<ActiveRental />} />
+
+      {/* Route for an inactive rental */}
       <Route
         path="/scooter/:scooter_id/inactive"
         element={<InactiveRental />}

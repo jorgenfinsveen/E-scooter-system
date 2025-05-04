@@ -9,6 +9,7 @@ export function CoRideButton({
   activeButton,
   handleButton,
 }: CoRideButtonProps) {
+  // Define the active button
   const BUTTON_ACTIVE = (
     <Button
       variant="contained"
@@ -21,6 +22,7 @@ export function CoRideButton({
     </Button>
   );
 
+  // Define the disabled button
   const BUTTON_DISABLED = (
     <Button
       variant="contained"
@@ -33,6 +35,7 @@ export function CoRideButton({
     </Button>
   );
 
+  // Return the button based on the activeButton prop
   return (
     <div className="button-container">
       {activeButton ? BUTTON_ACTIVE : BUTTON_DISABLED}
