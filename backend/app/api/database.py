@@ -1,5 +1,6 @@
 import logging
 import mysql.connector
+
 from tools.singleton import singleton
 
 
@@ -99,7 +100,7 @@ class db:
             self._conn = mysql.connector.connect(**credentials)
             self._conn.autocommit = True
             self._cursor = self._conn.cursor()
-            self._logger.info("Connected to the database")
+            self._logger.debug("Connected to the database")
         except mysql.connector.Error as e:
             self._logger.error(f"Error connecting to the database: {e}")
             raise
@@ -273,7 +274,7 @@ class db:
         try:
             self._cursor.execute(query, (price, user_id, scooter_id, rental_id))
             self._conn.commit()
-            self._logger.info(f"Rental completed: {rental_id}")
+            self._logger.debug(f"Rental completed: {rental_id}")
         except mysql.connector.Error as e:
             self._logger.error(f"Error completing rental: {e}")
             return False
@@ -286,11 +287,11 @@ class db:
 
     def update_scooter_status(self: object, scooter_id: int, status: int) -> bool:
         query = "UPDATE scooters SET status = %s WHERE uuid = %s"
-        self._logger.info(f"update_scooter_status: params: {status}, {scooter_id}")
+        self._logger.debug(f"update_scooter_status: params: {status}, {scooter_id}")
         try:
             self._cursor.execute(query, (status, scooter_id))
             self._conn.commit()
-            self._logger.info(f"Scooter info updated: {scooter_id}")
+            self._logger.debug(f"Scooter info updated: {scooter_id}")
             return True
         except mysql.connector.Error as e:
             self._logger.error(f"Error updating scooter info: {e}")
@@ -309,11 +310,11 @@ class db:
             bool: True if the scooter information was successfully updated, False otherwise.
         """
         query = "UPDATE scooters SET latitude = %s, longtitude = %s, status = %s WHERE uuid = %s"
-        self._logger.info(f"_update_scooter_info: params: {lat}, {lon}, {status}, {scooter_id}")
+        self._logger.debug(f"_update_scooter_info: params: {lat}, {lon}, {status}, {scooter_id}")
         try:
             self._cursor.execute(query, (lat, lon, status, scooter_id))
             self._conn.commit()
-            self._logger.info(f"Scooter info updated: {scooter_id}")
+            self._logger.debug(f"Scooter info updated: {scooter_id}")
             return True
         except mysql.connector.Error as e:
             self._logger.error(f"Error updating scooter info: {e}")

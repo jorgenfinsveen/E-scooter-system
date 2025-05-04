@@ -1,6 +1,8 @@
 import logging
+
 from api.mqtt import MQTTClient
 from controller.MainController import MainController
+
 
 t0 = {
     'source': 'initial',
@@ -45,6 +47,6 @@ class WeatherLock:
         self.controller.request_temperature()
     
     def lock_scooter(self):
-        self._logger.info("Locking the scooter due to weather conditions")
+        self._logger.warning("Locking the scooter due to weather conditions")
         self.mqtt_client.abort_session(cause="weather")
         self.controller.lock()

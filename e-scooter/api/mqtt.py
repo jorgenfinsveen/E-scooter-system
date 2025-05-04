@@ -1,10 +1,11 @@
-import json
 import sys
-import logging
 import time
-from threading import Thread
+import json
+import logging
 import paho.mqtt.client as mqtt
+
 from tools.singleton import singleton
+
 
 @singleton
 class MQTTClient:

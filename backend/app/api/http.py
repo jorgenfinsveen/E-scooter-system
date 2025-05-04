@@ -1,14 +1,16 @@
 import os
 import logging
-
-from fastapi.encoders import jsonable_encoder
-from fastapi.staticfiles import StaticFiles
-from logic import weather
-from fastapi.responses import FileResponse, JSONResponse
 from contextlib import asynccontextmanager
-from fastapi.middleware.cors import CORSMiddleware
-from service import single_ride_service, multi_ride_service
+
+from fastapi.staticfiles import StaticFiles
+from fastapi.encoders import jsonable_encoder
 from fastapi import FastAPI, Response, Request, Query, APIRouter
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
+
+from logic import weather
+from service import single_ride_service, multi_ride_service
+
 
 DEPLOYMENT_MODE = os.getenv('DEPLOYMENT_MODE', 'TEST')
 DISABLE_MQTT    = os.getenv("DISABLE_MQTT", "False").lower() == "true"
@@ -22,8 +24,8 @@ async def lifespan(app: FastAPI):
     set_single_ride_service()
     set_multi_ride_service()
 
-    logger.info("Initializing single ride service")
-    logger.info("Initializing multi ride service")
+    logger.debug("Initializing single ride service")
+    logger.debug("Initializing multi ride service")
     
     yield
 

@@ -5,6 +5,7 @@ import time
 import logging
 from threading import Event
 import paho.mqtt.client as mqtt
+
 from tools.singleton import singleton
 from service.internal_service import internal_service
 
