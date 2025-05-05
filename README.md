@@ -454,4 +454,32 @@ In order to further improve upon the coupling between the modules of the e-scoot
 
 
 ## AI Declaration
-Generative AI has been used for some aspects of the project. This includes comment generation, debugging, and code generation of the singleton annotation. The models used is primarily OpenAI's ChatGPT 4o. The group would like to emphasize that GenAI has not been used to generate functional parts of the software, and that the ideas and design choices are based on the intuition of the authors, not GenAI. For writing the vision document and system specification, OpenAI's ChatGPT 4o has been used to fix LaTeX-related syntax errors, not text-generation. AI have been used to some extent for spell-checking. No images have been produced using GenAI.
+
+__Usage__:
+
+Generative AI has been used for some aspects of the project. This includes comment generation, debugging, and code generation of the singleton annotation. The models used is primarily OpenAI's [ChatGPT 4o](https://openai.com/index/hello-gpt-4o/), as well as some usage of Microsoft's [Copilot](https://copilot.microsoft.com/) with [NTNU licensing](https://i.ntnu.no/wiki/-/wiki/English/Copilot). The group would like to emphasize that GenAI (Generative Artificial Intelligence) has not been used to generate functional parts of the software other than the singleton decorator in the [backend](/backend/app/tools/singleton.py) and [e-scooter](/e-scooter/tools/singleton.py), and that the ideas and design choices are based on the knowledge, experience, and intuition of the authors, not GenAI. For writing the vision document and system specification, OpenAI's ChatGPT 4o has been used to fix LaTeX-related syntax errors, not text-generation. AI have been used to some extent for spell-checking. No images have been produced using GenAI.
+
+__Examples__:
+* Generating the singleton decorator in [backend/app/tools/singleton.py](/backend/app/tools/singleton.py) and [e-scooter/tools/singleton.py](/e-scooter/tools/singleton.py).
+  * The idea of using singletons came from one of the authors of the project, not GenAI.
+  * ChatGPT 4o was prompted to generate a decorator which we could use to annotate classes, making them inherit the singleton traits.
+* Generating comments for functions in the back-end.
+  * After the authors started writing proper documentation for functions in [http.py](/backend/app/api/http.py) and [single_ride_service.py](/backend/app/service/single_ride_service.py), the copilot (running ChatGPT 4o) integrated in the Visual Studio Code text editor caught up to how functions should be documented, and started suggesting autocompleting comments under functions in the same files. This was accepted.
+* Generating useEffect-hooks in the front-end.
+  * Due to errors with useEffect-hooks, ChatGPT 4o was partially used to debug and suggest improvements to useEffect-hooks in [RentScooter.tsx](/frontend/app/src/pages/RentScooter.tsx), [ActiveRental.tsx](/frontend/app/src/pages/ActiveRental.tsx), and [InactiveRental.tsx](/frontend/app/src/pages/InactiveRental.tsx).
+  * The useEffect-hooks has not been generated in its entirety, but partially rewritten by GenAI.
+
+__Final statement__:
+
+
+ The authors are aware of NTNU's guidelines for [Artificial intelligence in student papers](https://i.ntnu.no/wiki/-/wiki/English/Artificial+intelligence+in+student+papers), and acknowledge the importance of not presenting artificially generated content as their own work. 
+
+__Signed by__:
+* Iqra Arshad
+* Fabrice Baricako
+* Jørgen Finsveen
+* Vebjørn Langsæter
+* Magnus Olsen
+
+__Date/Location__:
+* 05.05.2025, Trondheim
