@@ -32,6 +32,7 @@ __Authors__:
 - [State Machines](#state-machines)
   - [WeatherLock](#weatherlock)
   - [CrashDetection](#crashdetection)
+- [Design Patterns](#design-patterns)
 - [AI Declaration](#ai-declaration)
 
 
@@ -385,8 +386,9 @@ The e-scooter is written in Python, and deployed on a Raspberry Pi 4 equipped wi
 * [__tools__](/e-scooter/tools)
   * _initializer.py_
   * _singleton.py_
+  * _observer.py_
 
-The __api__-catalogue contains the MQTT-client which is used to communicate with the back-end. One may find the controllers in __controller__, where _MainController.py_ has the responsibility of the entire e-scooter, while _SenseHAT.py_ represents an interface to the Sense HAT. Furthermore, the __stm__-catalogue contains the two state machines which ensures that a session terminates upon low temperatures or a crash, as well as a driver-class to contain the state machines. Lastly, the __tools__-catalogue contains a [singleton](https://refactoring.guru/design-patterns/singleton) annotation, which was used to annotate the controllers and the MQTT-client as singletons, and _initializer.py_, which is used to initialize and restart the driver containing the state machines.
+The __api__-catalogue contains the MQTT-client which is used to communicate with the back-end. In order to improve cohesion and reduce coupling, this communication is not done directly, but through a common state object implemented as an observer in _observer.py_. One may find the controllers in __controller__, where _MainController.py_ has the responsibility of the entire e-scooter, while _SenseHAT.py_ represents an interface to the Sense HAT. Furthermore, the __stm__-catalogue contains the two state machines which ensures that a session terminates upon low temperatures or a crash, as well as a driver-class to contain the state machines. Lastly, the __tools__-catalogue contains a [singleton](https://refactoring.guru/design-patterns/singleton) annotation, which was used to annotate the controllers and the MQTT-client as singletons, _initializer.py_, which is used to initialize and restart the driver containing the state machines, and _observer.py_ which holds the state class which it utilized by the state machines and main-controller in order to establish communication between them without the classes knowing of the others existence.
 
 
 ### Docker, Mosquitto, and Nginx
@@ -441,5 +443,15 @@ The statemachine is implemented in [__WeatherLock.py__](/e-scooter/stm/WeatherLo
 
 <br/><img src="/docs/crash_detection.png"/> <br/><br/><br/>
 
-## AI declaration
+## Design Patterns
+It was decided to implement several design patterns in the e-scooter software in order to remedy what the authors categorize as an architectural weakness of state machine programming. The problem was that implementing state machine undermined the object-oriented design principles of [high cohesion and low coupling](https://medium.com/clarityhub/low-coupling-high-cohesion-3610e35ac4a6). In order to improve upon this, the group decided to implement the following design patterns:
+
+### Singleton
+The [Singleton pattern](https://refactoring.guru/design-patterns/singleton) works by ensuring that one class may only produce a single instance of itself. This means that once an instance has been declared, all other classes which declares a new instance will in reality receive the first instance instead of a new one. This pattern was implemented in both the e-scooter software and in the back-end as a decorator, which could be used to annotate a class, making them inherit the singleton features automatically. In the e-scooter software, it was used to make the classes [_MainController_](/e-scooter/controller/MainController.py), [_State_](/e-scooter/tools/observer.py), [_Initializer_](/e-scooter/tools/initializer.py), and [_MQTTClient_](/e-scooter/api/mqtt.py) singletons. In the back-end, it was used for the classes [MQTT_Client](/backend/app/api/mqtt-py), [Database_Client](/backend/app/api/database.py), as well as the [Service-classes](/backend/app/service/) This step helped reduce direct dependence between the classes. Achieving a higher degree of modularity, reducing coupling and elevating cohesion. 
+
+### Observer
+In order to further improve upon the coupling between the modules of the e-scooter software, the [Observer pattern](https://refactoring.guru/design-patterns/observer) was utilized. The observer works by defining a class, [_State_](/e-scooter/tools/observer.py), which accepts one or several objects which "subscribes" to updates of the internal state of the observer. This made it possible to totally exclude the direct communication between the [state machines](/e-scooter/stm/) and the [main controller](/e-scooter/controller/MainController.py). Furthermore, it made it possible to hide the entire existence of the main controller for the [MQTT-client](/e-scooter/api/mqtt.py), making the MQTT-client a completely standalone class. The only subscriber of the observer is the main controller, while the state machines and the MQTT-client updates the state of the observer, which automatically triggers the _notify()_ function of the main controller. Upon this function-call, the main controller reads the new state and decides what to do based on its value. This further decreased the coupling between classes, where the state machines and the MQTT-client had no knowledge of the existence of the main controller, even though these where the most coupled classes before this design pattern was implemented.
+
+
+## AI Declaration
 Generative AI has been used for some aspects of the project. This includes comment generation, debugging, and code generation of the singleton annotation. The models used is primarily OpenAI's ChatGPT 4o. The group would like to emphasize that GenAI has not been used to generate functional parts of the software, and that the ideas and design choices are based on the intuition of the authors, not GenAI. For writing the vision document and system specification, OpenAI's ChatGPT 4o has been used to fix LaTeX-related syntax errors, not text-generation. AI have been used to some extent for spell-checking. No images have been produced using GenAI.
